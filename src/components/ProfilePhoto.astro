@@ -1,23 +1,204 @@
 ---
 import { photos } from '../data/site';
-const { main, alt, width, height, altWidth, altHeight, altText } = photos;
+import Icon from './Icon.astro';
+
+/**
+ * Foto interaktif, tiga kondisi (data-stage):
+ *   0 diam   : foto normal (bila ada) atau foto "half"
+ *   1 sentuh : hover / tap pertama / fokus keyboard. Foto "half" terungkap mengikuti pointer
+ *   2 aksi   : klik / tap kedua / tahan. Pose aksi + burst jaring
+ * Varian merah/hitam dipilih token --v-red / --v-black dari tema aktif.
+ */
+const { normal, half, action, altText } = photos;
+const hasNormal = Boolean(normal);
+
+type Layer = { src: string; width: number; height: number; kind: 'normal' | 'half' | 'action'; variant?: 'red' | 'black'; stages: number[] };
+const layers: Layer[] = [];
+if (normal) layers.push({ ...normal, kind: 'normal', stages: [0] });
+for (const v of ['red', 'black'] as const) {
+  const p = half[v];
+  if (p) layers.push({ ...p, kind: 'half', variant: v, stages: hasNormal ? [1] : [0, 1] });
+}
+for (const v of ['red', 'black'] as const) {
+  const p = action[v];
+  if (p) layers.push({ ...p, kind: 'action', variant: v, stages: [2] });
+}
+const hasAction = layers.some((l) => l.kind === 'action');
+const label = `${altText}. Sentuh untuk melihat transformasinya.`;
 ---
-{alt ? (
-  <button class="photo" type="button" data-photo aria-pressed="false" aria-label="Ganti foto">
-    <img class="photo__main" src={main} width={width} height={height} alt={altText} decoding="async" fetchpriority="high" />
-    <img class="photo__alt" src={alt} width={altWidth} height={altHeight} alt="" decoding="async" />
-  </button>
-) : (
-  <div class="photo">
-    <img src={main} width={width} height={height} alt={altText} decoding="async" fetchpriority="high" />
+{layers.length === 0 ? null : (
+  <div class="photo-wrap">
+    <button
+      class="photo"
+      type="button"
+      data-photo
+      data-stage="0"
+      data-has-normal={String(hasNormal)}
+      data-has-action={String(hasAction)}
+      data-label={label}
+      aria-pressed="false"
+      aria-label={label}
+    >
+      <span class="photo__imgs" aria-hidden="true">
+        {layers.map((l, i) => (
+          <img
+            class:list={['ph', `ph--${l.kind}`, l.variant && `v-${l.variant}`, ...l.stages.map((s) => `in-${s}`)]}
+            src={l.src}
+            width={l.width}
+            height={l.height}
+            alt=""
+            decoding="async"
+            fetchpriority={i === 0 ? 'high' : 'auto'}
+            draggable="false"
+          />
+        ))}
+      </span>
+      <span class="photo__sense" aria-hidden="true"><i></i><i></i><i></i></span>
+      <svg class="photo__burst" viewBox="-100 -100 200 200" aria-hidden="true" fill="none" stroke="currentColor" stroke-linecap="round">
+        {Array.from({ length: 16 }, (_, i) => {
+          const a = (i / 16) * Math.PI * 2;
+          const r0 = 26 + (i % 2) * 6;
+          const r1 = 70 + (i % 3) * 14;
+          return <line x1={(Math.cos(a) * r0).toFixed(1)} y1={(Math.sin(a) * r0).toFixed(1)} x2={(Math.cos(a) * r1).toFixed(1)} y2={(Math.sin(a) * r1).toFixed(1)} stroke-width={i % 2 ? 1.2 : 2.4} pathLength="1" />;
+        })}
+        <circle r="22" stroke-width="2" />
+      </svg>
+    </button>
+    <p class="photo__hint" data-hint aria-hidden="true">
+      <Icon name="spark" size={16} />
+      <span class="hint--fine">Arahkan kursor, lalu klik</span>
+      <span class="hint--coarse">Sentuh aku</span>
+    </p>
+    <span class="sr-only" role="status" aria-live="polite" data-live></span>
   </div>
 )}
 
 <script>
-  // Desktop: hover lewat CSS. Layar sentuh dan keyboard: tap/Enter untuk berganti foto.
   const el = document.querySelector<HTMLButtonElement>('[data-photo]');
-  el?.addEventListener('click', () => {
-    const on = el.classList.toggle('is-alt');
-    el.setAttribute('aria-pressed', String(on));
-  });
+  if (el) {
+    const hint = document.querySelector<HTMLElement>('[data-hint]');
+    const live = document.querySelector<HTMLElement>('[data-live]');
+    const hasAction = el.dataset.hasAction === 'true';
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const base = el.dataset.label ?? '';
+    const LABELS = [
+      base,
+      'Topeng Spider-Man muncul separuh. Tekan untuk pose aksi.',
+      'Pose aksi Spider-Man. Tekan untuk kembali ke foto awal.',
+    ];
+    const HOLD_MS = 450;
+    const REVERT_ACTION_MS = 4200;
+    const REVERT_TOUCH_MS = 4800;
+
+    let stage = 0;
+    let pointerType: string = 'mouse';
+    let hovering = false;
+    let revertT = 0;
+    let holdT = 0;
+    let held = false;
+    let burstT = 0;
+    let downX = 0, downY = 0;
+
+    const setVars = (clientX: number, clientY: number) => {
+      const r = el.getBoundingClientRect();
+      const x = Math.min(1, Math.max(0, (clientX - r.left) / r.width));
+      const y = Math.min(1, Math.max(0, (clientY - r.top) / r.height));
+      el.style.setProperty('--mx', (x * 100).toFixed(1) + '%');
+      el.style.setProperty('--my', (y * 100).toFixed(1) + '%');
+      if (!reduce.matches && pointerType === 'mouse') {
+        el.style.setProperty('--ry', ((x - 0.5) * 9).toFixed(2) + 'deg');
+        el.style.setProperty('--rx', ((0.5 - y) * 7).toFixed(2) + 'deg');
+      }
+    };
+
+    const dismissHint = () => {
+      if (!hint) return;
+      hint.classList.add('is-gone');
+      try { sessionStorage.setItem('dt-hint', '1'); } catch (e) { /* diblokir */ }
+    };
+    try { if (sessionStorage.getItem('dt-hint')) hint?.classList.add('is-gone'); } catch (e) { /* diblokir */ }
+
+    const clearRevert = () => { window.clearTimeout(revertT); revertT = 0; };
+    const scheduleRevert = (ms: number) => {
+      clearRevert();
+      revertT = window.setTimeout(() => go(hovering && pointerType === 'mouse' && stage === 2 ? 1 : 0), ms);
+    };
+
+    const burst = () => {
+      if (reduce.matches) return;
+      el.classList.remove('is-burst');
+      void el.offsetWidth; // mulai ulang animasi
+      el.classList.add('is-burst');
+      window.clearTimeout(burstT);
+      burstT = window.setTimeout(() => el.classList.remove('is-burst'), 900);
+    };
+
+    function go(next: number) {
+      if (next === 2 && !hasAction) next = 0;
+      if (next === stage) return;
+      const prev = stage;
+      stage = next;
+      el.dataset.stage = String(stage);
+      el.setAttribute('aria-pressed', String(stage === 2));
+      el.setAttribute('aria-label', LABELS[stage]);
+      if (live) live.textContent = stage === 0 ? 'Foto kembali normal' : stage === 1 ? 'Topeng muncul separuh' : 'Pose aksi';
+      if (stage === 2) { burst(); dismissHint(); }
+      if (stage === 1) dismissHint();
+      if (stage === 0) { el.style.setProperty('--rx', '0deg'); el.style.setProperty('--ry', '0deg'); }
+      clearRevert();
+      if (stage === 2) scheduleRevert(REVERT_ACTION_MS);
+      else if (stage === 1 && pointerType !== 'mouse') scheduleRevert(REVERT_TOUCH_MS);
+      void prev;
+    }
+
+    el.addEventListener('pointerenter', (e) => {
+      pointerType = e.pointerType;
+      if (e.pointerType !== 'mouse') return;
+      hovering = true; setVars(e.clientX, e.clientY);
+      clearRevert();
+      if (stage === 0) go(1);
+    });
+    el.addEventListener('pointermove', (e) => {
+      pointerType = e.pointerType;
+      if (e.pointerType === 'mouse') { hovering = true; setVars(e.clientX, e.clientY); }
+      if (holdT && Math.hypot(e.clientX - downX, e.clientY - downY) > 10) { window.clearTimeout(holdT); holdT = 0; }
+    });
+    el.addEventListener('pointerleave', (e) => {
+      if (e.pointerType !== 'mouse') return;
+      hovering = false;
+      window.clearTimeout(holdT); holdT = 0;
+      if (stage === 1) { clearRevert(); revertT = window.setTimeout(() => go(0), 250); }
+      else if (stage === 2) scheduleRevert(1800);
+    });
+
+    el.addEventListener('pointerdown', (e) => {
+      pointerType = e.pointerType;
+      held = false;
+      downX = e.clientX; downY = e.clientY;
+      setVars(e.clientX, e.clientY);
+      window.clearTimeout(holdT);
+      holdT = window.setTimeout(() => { holdT = 0; held = true; go(2); }, HOLD_MS);
+    });
+    const endHold = () => { window.clearTimeout(holdT); holdT = 0; };
+    el.addEventListener('pointerup', endHold);
+    el.addEventListener('pointercancel', endHold);
+
+    el.addEventListener('click', (e) => {
+      if (held) { held = false; return; } // klik ini akibat tahan, sudah ditangani
+      const fromKeyboard = e.detail === 0;
+      if (fromKeyboard || pointerType !== 'mouse') {
+        // Sentuh / keyboard: 0 -> 1 -> 2 -> 0
+        if (!fromKeyboard) setVars(e.clientX, e.clientY);
+        go(stage === 0 ? 1 : stage === 1 ? 2 : 0);
+      } else {
+        // Mouse: klik langsung ke aksi; klik lagi kembali (kursor masih di atas = kondisi 1)
+        go(stage === 2 ? 1 : 2);
+      }
+    });
+
+    el.addEventListener('focus', () => { if (el.matches(':focus-visible') && stage === 0) { pointerType = 'key'; go(1); } });
+    el.addEventListener('blur', () => { if (stage !== 0 && !hovering) go(0); });
+    el.addEventListener('keydown', (e) => { if (e.key === 'Escape') go(0); });
+    el.addEventListener('contextmenu', (e) => { if (pointerType !== 'mouse') e.preventDefault(); }); // tahan di HP bukan menu gambar
+  }
 </script>

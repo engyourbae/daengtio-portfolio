@@ -5,29 +5,29 @@ import ThemeSwitch from './ThemeSwitch.astro';
 import Icon from './Icon.astro';
 ---
 <header class="site-header" data-menu="closed">
-  <div class="wrap site-header__bar">
+  <div class="site-header__bar">
     <a class="brand" href={home} aria-label={`${profile.name}, beranda`}>
-      <LogoMark size={30} />
+      <LogoMark size={28} />
       <span class="brand__text">{profile.shortName}</span>
     </a>
+    <nav class="menu" id="menu" aria-label="Navigasi utama">
+      {nav.map((n) => <a href={n.href}>{n.label}</a>)}
+    </nav>
     <div class="site-header__tools">
-      <nav class="menu" id="menu" aria-label="Navigasi utama">
-        {nav.map((n) => <a href={n.href}>{n.label}</a>)}
-      </nav>
       <ThemeSwitch />
       <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="menu" aria-label="Buka menu">
         <Icon name="menu" class="i-menu" size={24} />
         <Icon name="close" class="i-close" size={24} />
       </button>
     </div>
+    <div class="thread" aria-hidden="true"><span class="thread__fill" data-progress></span></div>
   </div>
-  <div class="equator" aria-hidden="true"><span class="equator__dot" data-progress></span></div>
 </header>
 
 <script>
   const header = document.querySelector<HTMLElement>('.site-header')!;
   const toggle = header.querySelector<HTMLButtonElement>('.menu-toggle')!;
-  const dot = header.querySelector<HTMLElement>('[data-progress]')!;
+  const fill = header.querySelector<HTMLElement>('[data-progress]')!;
 
   const setMenu = (open: boolean) => {
     header.dataset.menu = open ? 'open' : 'closed';
@@ -38,14 +38,30 @@ import Icon from './Icon.astro';
   header.querySelectorAll('.menu a').forEach((a) => a.addEventListener('click', () => setMenu(false)));
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setMenu(false); });
 
-  // Matahari bergeser sepanjang garis khatulistiwa mengikuti progres scroll.
+  // Benang jaring memanjang mengikuti progres scroll; header mengecil setelah turun sedikit.
   let ticking = false;
   const update = () => {
     const el = document.documentElement;
     const max = el.scrollHeight - el.clientHeight;
-    dot.style.setProperty('--p', (max > 0 ? el.scrollTop / max : 0).toFixed(4));
+    fill.style.setProperty('--p', (max > 0 ? el.scrollTop / max : 0).toFixed(4));
+    header.classList.toggle('is-scrolled', el.scrollTop > 24);
     ticking = false;
   };
   addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
   update();
+
+  // Penanda section aktif.
+  const links = Array.from(header.querySelectorAll<HTMLAnchorElement>('.menu a'));
+  const map = new Map<string, HTMLAnchorElement>();
+  links.forEach((a) => { const id = a.hash.slice(1); if (id) map.set(id, a); });
+  if ('IntersectionObserver' in window && map.size) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        links.forEach((l) => l.removeAttribute('aria-current'));
+        map.get(e.target.id)?.setAttribute('aria-current', 'true');
+      });
+    }, { rootMargin: '-45% 0px -50% 0px' });
+    map.forEach((_, id) => { const s = document.getElementById(id); if (s) io.observe(s); });
+  }
 </script>

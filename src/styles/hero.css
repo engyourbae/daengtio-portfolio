@@ -1,0 +1,85 @@
+/* ---------- Hero ---------- */
+.hero { position: relative; padding-top: calc(var(--header-h) + clamp(2rem, 6vw, 5rem)); padding-bottom: clamp(3rem, 6vw, 5rem); overflow: clip; }
+.hero__grid { display: grid; gap: clamp(2rem, 5vw, 4rem); align-items: center; }
+@media (min-width: 900px) { .hero__grid { grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); } }
+
+.badge {
+  display: inline-flex; align-items: center; gap: 0.6rem; padding: 0.45rem 1rem 0.45rem 0.8rem;
+  border: 1px solid var(--line); border-radius: var(--r-pill); font-size: var(--step--1); font-weight: 600;
+  background: color-mix(in srgb, var(--bg) 70%, transparent);
+}
+.badge::before { content: ''; width: 9px; height: 9px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 0 var(--accent); }
+@media (prefers-reduced-motion: no-preference) { .badge::before { animation: sense 2.2s ease-out infinite; } }
+@keyframes sense { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 70%, transparent); } 100% { box-shadow: 0 0 0 12px transparent; } }
+
+.hero h1 { font-size: var(--step-hero); line-height: 0.98; margin-top: var(--s-5); max-width: 16em; }
+.w { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: 0.08em; margin-bottom: -0.08em; margin-right: 0.24em; }
+.w__in { display: inline-block; }
+.w__in.is-accent { color: var(--accent); }
+:root[data-theme='terang'] .w__in.is-accent { -webkit-text-stroke: 0; }
+.hero__intro { margin-top: var(--s-5); line-height: 1.5; color: var(--ink-2); max-width: 38ch; font-size: clamp(1.05rem, 1rem + 0.4vw, 1.25rem); }
+.hero__cta { display: flex; flex-wrap: wrap; gap: var(--s-3); margin-top: var(--s-6); }
+.hero__place { margin-top: var(--s-6); font-size: var(--step--1); letter-spacing: 0.06em; color: var(--ink-2); }
+
+/* Panggung foto */
+.stage { position: relative; isolation: isolate; width: min(100%, 26rem); margin-inline: auto; aspect-ratio: 4 / 5; }
+.stage__disc {
+  position: absolute; z-index: -3; left: 50%; bottom: 6%; width: 94%; aspect-ratio: 1; translate: -50% 0; border-radius: 50%;
+  background: radial-gradient(circle at 35% 28%, var(--disc-a), var(--disc-b) 72%);
+  box-shadow: 0 0 0 6px var(--bg), 0 0 0 7px var(--disc-edge), 0 30px 80px -30px var(--shadow-photo);
+  transition: background 0.6s ease;
+}
+.stage__disc::after { content: ''; position: absolute; inset: 0; border-radius: 50%; background-image: radial-gradient(circle, rgba(255, 255, 255, 0.16) 1.2px, transparent 1.8px); background-size: 9px 9px; -webkit-mask-image: linear-gradient(200deg, #000, transparent 60%); mask-image: linear-gradient(200deg, #000, transparent 60%); }
+.stage__web { position: absolute; z-index: -2; left: 50%; bottom: -12%; width: 150%; translate: -50% 0; color: var(--web); }
+.stage__web path { stroke-dasharray: 1; stroke-dashoffset: 1; }
+.stage__orbit { position: absolute; z-index: -1; left: 50%; bottom: 0; width: 106%; aspect-ratio: 1; translate: -50% 6%; border-radius: 50%; border: 1.5px dashed var(--line); }
+
+/* Garis pijakan: potret "berdiri" di atas benang jaring, sehingga tepi bawah foto terasa disengaja */
+.stage::after { content: ''; position: absolute; z-index: 1; left: -30%; right: -30%; bottom: -1px; height: 3px; background: var(--ink); border-radius: 3px; pointer-events: none; }
+.stage__chips { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+.stage__chips li {
+  position: absolute; padding: 0.4rem 0.9rem; border-radius: var(--r-pill); font-size: var(--step--1); font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+  background: var(--ink); color: var(--bg); box-shadow: 0 10px 24px -12px var(--shadow-photo);
+}
+.stage__chips li:nth-child(1) { left: -4%; top: 22%; }
+.stage__chips li:nth-child(2) { right: -3%; top: 40%; background: var(--accent); color: var(--on-accent); }
+.stage__chips li:nth-child(3) { left: 2%; bottom: 14%; background: var(--bg); color: var(--ink); border: 1.5px solid var(--ink); }
+@media (max-width: 520px) { .stage__chips li:nth-child(1) { left: 0; } .stage__chips li:nth-child(2) { right: 0; } }
+
+.hero__scroll { display: none; position: absolute; left: 50%; bottom: 1rem; translate: -50% 0; width: 26px; height: 42px; border: 1.5px solid var(--ink-2); border-radius: 14px; }
+.hero__scroll span { position: absolute; left: 50%; top: 8px; width: 3px; height: 8px; margin-left: -1.5px; border-radius: 2px; background: var(--ink); }
+@media (min-width: 900px) and (min-height: 760px) { .hero__scroll { display: block; } }
+
+/* Marquee */
+.marquee { overflow: hidden; border-block: 1px solid var(--line); background: var(--ink); color: var(--bg); padding-block: 0.9rem; transform: rotate(-1.2deg); margin-block: 1rem 2rem; width: 104%; margin-left: -2%; }
+.marquee__track { display: flex; width: max-content; }
+.marquee__list { display: flex; flex: none; }
+.marquee__list li { display: inline-flex; align-items: center; gap: 1.4rem; padding-right: 1.4rem; font-family: var(--font-display); font-size: clamp(1.4rem, 1rem + 2vw, 2.4rem); text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; }
+.marquee__sep { width: 0.9em; height: 0.9em; color: var(--accent); flex: none; }
+:root[data-theme='gelap'] .marquee { background: var(--bg-2); color: var(--ink); }
+
+/* Animasi masuk: baru jalan setelah loader terbuka (html tidak lagi .loading) */
+@media (prefers-reduced-motion: no-preference) {
+  .hero [data-in] { opacity: 0; }
+  html:not(.loading) .hero [data-in] { animation: rise 0.9s var(--ease) both; animation-delay: calc(var(--i, 0) * 90ms + 120ms); }
+  .w__in { transform: translateY(110%); }
+  html:not(.loading) .w__in { animation: word-up 0.9s var(--ease) both; animation-delay: calc(var(--i, 0) * 70ms + 80ms); }
+  html:not(.loading) .stage__web path { animation: web-draw 2.2s var(--ease) 0.4s forwards; }
+  .stage__chips li { opacity: 0; }
+  html:not(.loading) .stage__chips li { animation: chip-in 0.7s var(--ease-spring) both, float 5s ease-in-out infinite; animation-delay: calc(0.9s + var(--n) * 120ms), calc(1.6s + var(--n) * 400ms); }
+  html:not(.loading) .stage__orbit { animation: orbit-in 1.4s var(--ease) both; }
+  .marquee__track { animation: marquee 32s linear infinite; }
+  .marquee:hover .marquee__track { animation-play-state: paused; }
+  .hero__scroll span { animation: scroll-dot 1.8s ease-in-out infinite; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .stage__web path { stroke-dashoffset: 0; }
+  .marquee__track { animation: none; }
+}
+@keyframes rise { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
+@keyframes word-up { from { transform: translateY(110%) rotate(3deg); } to { transform: none; } }
+@keyframes chip-in { from { opacity: 0; transform: scale(0.6) translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -8px; } }
+@keyframes orbit-in { from { opacity: 0; transform: scale(0.85) rotate(-20deg); } to { opacity: 1; transform: none; } }
+@keyframes marquee { to { transform: translateX(-50%); } }
+@keyframes scroll-dot { 0% { opacity: 0; transform: translateY(0); } 40% { opacity: 1; } 100% { opacity: 0; transform: translateY(14px); } }

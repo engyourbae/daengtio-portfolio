@@ -1,10 +1,18 @@
 ---
-import '@fontsource-variable/unbounded';
+import '@fontsource/anton';
 import '@fontsource-variable/instrument-sans';
 import '../styles/tokens.css';
 import '../styles/base.css';
 import '../styles/components.css';
+import '../styles/header.css';
+import '../styles/hero.css';
+import '../styles/photo.css';
+import '../styles/backdrop.css';
+import '../styles/loader.css';
 import { asset, home, profile, seo } from '../data/site';
+import Backdrop from '../components/Backdrop.astro';
+import Loader from '../components/Loader.astro';
+import Motion from '../components/Motion.astro';
 
 interface Props { title?: string; description?: string; noindex?: boolean }
 const { title, description = seo.description, noindex = false } = Astro.props;
@@ -27,7 +35,7 @@ const jsonLd = {
 };
 ---
 <!doctype html>
-<html lang="id" data-theme="siang">
+<html lang="id" data-theme="terang">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -37,7 +45,7 @@ const jsonLd = {
     <link rel="canonical" href={canonical} />
     {noindex && <meta name="robots" content="noindex" />}
 
-    <meta name="theme-color" content="#EFF3EE" />
+    <meta name="theme-color" content="#F7F2EC" />
     <link rel="icon" href={asset('brand/favicon.ico')} sizes="48x48" />
     <link rel="icon" href={asset('brand/favicon-32.png')} type="image/png" sizes="32x32" />
     <link rel="apple-touch-icon" href={asset('brand/apple-touch-icon.png')} />
@@ -60,23 +68,38 @@ const jsonLd = {
 
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
 
-    <!-- Tema diterapkan sebelum render pertama agar tidak berkedip. -->
+    <!-- Dijalankan sebelum render pertama: tema tanpa kedip, dan penanda loader. -->
     <script is:inline>
       (function () {
-        var t;
+        var d = document.documentElement, t, seen = false;
+        d.classList.add('js');
         try { t = localStorage.getItem('dt-theme'); } catch (e) {}
-        if (t !== 'siang' && t !== 'malam' && t !== 'zenith') {
-          t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'malam' : 'siang';
+        // Migrasi nilai tema versi lama.
+        if (t === 'siang') t = 'terang';
+        else if (t === 'malam' || t === 'zenith') t = 'gelap';
+        if (t !== 'terang' && t !== 'gelap') {
+          t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'gelap' : 'terang';
         }
-        document.documentElement.setAttribute('data-theme', t);
-        var c = { siang: '#EFF3EE', malam: '#071A1B', zenith: '#1D3BF0' }[t];
+        d.setAttribute('data-theme', t);
         var m = document.querySelector('meta[name="theme-color"]');
-        if (m) m.setAttribute('content', c);
+        if (m) m.setAttribute('content', t === 'gelap' ? '#06070A' : '#F7F2EC');
+        try { seen = !!sessionStorage.getItem('dt-seen'); } catch (e) {}
+        var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (!seen && !reduce) {
+          d.classList.add('loading');
+          // Pengaman: halaman tidak boleh tertahan bila skrip loader gagal.
+          setTimeout(function () { d.classList.remove('loading'); d.classList.add('ready'); }, 7000);
+        } else {
+          d.classList.add('ready');
+        }
       })();
     </script>
   </head>
   <body>
     <a class="skip" href="#main">Lewati ke konten</a>
+    <Backdrop />
+    <Loader />
     <slot />
+    <Motion />
   </body>
 </html>

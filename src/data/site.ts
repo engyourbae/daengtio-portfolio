@@ -49,14 +49,37 @@ export const seo = {
     'Portofolio Daeng Tio Waldi, mahasiswa Manajemen Bisnis Syariah dan freelance web & game developer di Pontianak. Terbuka untuk pekerjaan freelance.',
 };
 
+/**
+ * Foto profil interaktif. Semua berupa cutout transparan (webp alpha), tanpa latar.
+ *  - normal : foto biasa tanpa Spider-Man (kondisi diam).
+ *             TODO: belum ada. Taruh file `public/assets/profile/profile-normal.webp`
+ *             (cutout transparan, komposisi sama dengan profile-main) dan situs memakainya otomatis.
+ *             Selama belum ada, kondisi diam memakai foto "half".
+ *  - half   : separuh wajah/badan berubah jadi suit (muncul saat hover / tap pertama / fokus).
+ *  - action : pose aksi (muncul saat klik / tap kedua / tahan).
+ * Varian `red` dipakai tema terang, `black` dipakai tema gelap.
+ */
+const photo = (stem: string, width: number, height: number) => {
+  const src = findAsset(stem);
+  return src ? { src, width, height } : null;
+};
 export const photos = {
-  main: findAsset('profile/profile-main'),
-  alt: findAsset('profile/profile-alt'),
-  width: 800,
-  height: 1069,
-  altWidth: 900,
-  altHeight: 984,
-  altText: 'Foto Daeng Tio Waldi, separuh wajah berubah menjadi topeng Spider-Man hitam',
+  normal: photo('profile/profile-normal', 800, 1069),
+  half: {
+    red: photo('profile/profile-hero-red', 900, 1203),
+    black: photo('profile/profile-main', 800, 1069),
+  },
+  action: {
+    red: photo('profile/profile-action', 1000, 1094),
+    black: photo('profile/profile-alt', 900, 984),
+  },
+  altText: 'Daeng Tio Waldi, separuh wajahnya berubah menjadi topeng Spider-Man',
+};
+
+/** Elemen dekoratif hero. Hanya merujuk bidang kerja yang memang ada di daftar project. */
+export const hero = {
+  accentWords: ['web', 'game'],
+  chips: ['Web', 'Game', 'PWA'],
 };
 
 export const nav = [

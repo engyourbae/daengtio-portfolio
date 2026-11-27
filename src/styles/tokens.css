@@ -1,15 +1,20 @@
-/* Token desain. Konsep: garis khatulistiwa (Pontianak berada di 0°). */
+/*
+ * Token desain. Konsep: Spider-Man.
+ *  - terang = suit merah klasik (merah, biru tua, putih, halftone komik)
+ *  - gelap  = Black Suit (hitam pekat, perak, biru baja)
+ * Semua warna lewat token; komponen tidak boleh memakai hex sendiri.
+ */
 :root {
-  --font-display: 'Unbounded Variable', 'Unbounded', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Anton', 'Impact', 'Haettenschweiler', 'Arial Narrow Bold', sans-serif;
   --font-body: 'Instrument Sans Variable', 'Instrument Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 
   /* Skala tipografi fluid */
   --step--1: clamp(0.8125rem, 0.79rem + 0.1vw, 0.875rem);
   --step-0: clamp(1rem, 0.96rem + 0.2vw, 1.125rem);
-  --step-1: clamp(1.2rem, 1.05rem + 0.6vw, 1.5rem);
-  --step-2: clamp(1.5rem, 1.2rem + 1.2vw, 2.25rem);
-  --step-3: clamp(1.75rem, 1.25rem + 2.2vw, 3.25rem);
-  --step-hero: clamp(1.85rem, 1.05rem + 3.5vw, 3.9rem);
+  --step-1: clamp(1.25rem, 1.1rem + 0.6vw, 1.6rem);
+  --step-2: clamp(1.75rem, 1.3rem + 1.6vw, 2.75rem);
+  --step-3: clamp(2.25rem, 1.4rem + 3.4vw, 4.5rem);
+  --step-hero: clamp(2.6rem, 1rem + 5.1vw, 5.6rem);
 
   /* Ritme spasi */
   --s-1: 0.25rem;
@@ -23,54 +28,64 @@
 
   --gutter: clamp(1.25rem, 4vw, 3rem);
   --wrap: min(100% - 2 * var(--gutter), 76rem);
-  --header-h: 4rem;
+  --header-h: 4.5rem;
 
-  /* Radius bertingkat sesuai hierarki */
   --r-s: 6px;
   --r-m: 14px;
   --r-l: 28px;
   --r-pill: 999px;
 
   --ease: cubic-bezier(0.2, 0.7, 0.1, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --dur: 0.35s;
 }
 
 @media (min-width: 1800px) { :root { font-size: 112.5%; } }
 @media (min-width: 2400px) { :root { font-size: 131%; } }
 
-/* Siang: terang, hijau-abu dingin, matahari jingga */
+/* Terang: Spider-Man merah */
 :root,
-:root[data-theme='siang'] {
+:root[data-theme='terang'] {
   color-scheme: light;
-  --bg: #eff3ee;
-  --bg-2: #e2e9e2;
-  --ink: #0c2625;
-  --ink-2: #3c5553;
-  --line: rgba(12, 38, 37, 0.2);
-  --accent: #ff6b2c;
-  --on-accent: #0c2625;
+  --bg: #f7f2ec;
+  --bg-2: #ece4da;
+  --ink: #0b1233;          /* biru tua */
+  --ink-2: #484f72;
+  --line: rgba(11, 18, 51, 0.2);
+  --accent: #d0132a;       /* merah suit */
+  --on-accent: #ffffff;
+  --blue: #1b3f9a;
+  --web: rgba(11, 18, 51, 0.16);   /* garis jaring */
+  --halftone: rgba(208, 19, 42, 0.2);
+  --disc-a: #e5283d;
+  --disc-b: #a50d20;
+  --disc-edge: #0b1233;
+  --shadow-photo: rgba(60, 5, 14, 0.38);
+  --v-red: 1;              /* varian foto yang tampil */
+  --v-black: 0;
+  --dust: 0;
+  --ring: #ffffff;         /* riak spider-sense & burst di atas disc merah */
 }
 
-/* Malam: biru-hijau laut dalam, matahari kuning emas */
-:root[data-theme='malam'] {
+/* Gelap: Black Suit */
+:root[data-theme='gelap'] {
   color-scheme: dark;
-  --bg: #071a1b;
-  --bg-2: #0e2a2b;
-  --ink: #e7f1ec;
-  --ink-2: #9db5af;
-  --line: rgba(231, 241, 236, 0.2);
-  --accent: #ffb340;
-  --on-accent: #071a1b;
-}
-
-/* Zenith: matahari tepat di atas kepala, biru kobalt penuh */
-:root[data-theme='zenith'] {
-  color-scheme: dark;
-  --bg: #1d3bf0;
-  --bg-2: #1630cc;
-  --ink: #f6f7ff;
-  --ink-2: #c9d2ff;
-  --line: rgba(246, 247, 255, 0.3);
-  --accent: #ffe14d;
-  --on-accent: #101a66;
+  --bg: #06070a;
+  --bg-2: #0e1117;
+  --ink: #e9edf3;          /* perak terang */
+  --ink-2: #9ba6b8;
+  --line: rgba(205, 215, 230, 0.2);
+  --accent: #d6dde8;       /* perak */
+  --on-accent: #06070a;
+  --blue: #7b9ccb;         /* biru baja */
+  --web: rgba(190, 205, 228, 0.22);
+  --halftone: rgba(123, 156, 203, 0.16);
+  --disc-a: #263143;
+  --disc-b: #0b0f16;
+  --disc-edge: #c9d3e2;
+  --shadow-photo: rgba(0, 0, 0, 0.7);
+  --v-red: 0;
+  --v-black: 1;
+  --dust: 1;
+  --ring: #dbe4f2;
 }

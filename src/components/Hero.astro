@@ -1,23 +1,38 @@
 ---
-import { profile } from '../data/site';
+import { profile, hero } from '../data/site';
 import ProfilePhoto from './ProfilePhoto.astro';
+import WebArt from './WebArt.astro';
+import Icon from './Icon.astro';
+
+const words = profile.headline.split(' ');
+const isAccent = (w: string) => hero.accentWords.includes(w.toLowerCase().replace(/[^a-z]/g, ''));
 ---
 <section class="hero" aria-labelledby="hero-title">
   <div class="wrap hero__grid">
-    <div>
-      {profile.available && <p class="badge">{profile.availableLabel}</p>}
-      <h1 id="hero-title">{profile.headline}</h1>
-      <p class="hero__intro">{profile.intro}</p>
-      <div class="hero__cta">
-        <a class="btn btn--accent" href="#project">Lihat project</a>
+    <div class="hero__text">
+      {profile.available && <p class="badge" data-in style="--i:0">{profile.availableLabel}</p>}
+      <h1 id="hero-title" aria-label={profile.headline}>
+        {words.map((w, i) => (
+          <span class="w" aria-hidden="true"><span class:list={['w__in', { 'is-accent': isAccent(w) }]} style={`--i:${i + 1}`}>{w}</span></span>
+        ))}
+      </h1>
+      <p class="hero__intro" data-in style={`--i:${words.length + 1}`}>{profile.intro}</p>
+      <div class="hero__cta" data-in style={`--i:${words.length + 2}`}>
+        <a class="btn btn--accent" href="#project">Lihat project <Icon name="arrow" size={18} /></a>
         <a class="btn btn--line" href="#kontak">Hubungi saya</a>
       </div>
-      <p class="hero__place">{profile.location}, tepat di garis khatulistiwa ({profile.coords})</p>
+      <p class="hero__place" data-in style={`--i:${words.length + 3}`}>{profile.location} · {profile.coords}</p>
     </div>
-    <div class="stage">
-      <span class="stage__sun" aria-hidden="true"></span>
-      <span class="stage__line" aria-hidden="true"></span>
+
+    <div class="stage" data-in style="--i:2">
+      <div class="stage__disc"></div>
+      <WebArt class="stage__web" spokes={12} rings={6} />
+      <span class="stage__orbit" aria-hidden="true"></span>
       <ProfilePhoto />
+      <ul class="stage__chips" aria-hidden="true">
+        {hero.chips.map((c, i) => <li style={`--n:${i}`}>{c}</li>)}
+      </ul>
     </div>
   </div>
+  <a class="hero__scroll" href="#tentang" aria-label="Gulir ke bagian Tentang"><span></span></a>
 </section>

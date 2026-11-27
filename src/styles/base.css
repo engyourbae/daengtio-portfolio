@@ -5,6 +5,7 @@ html {
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
   text-size-adjust: 100%;
+  font-synthesis: none; /* Anton hanya punya satu bobot: cegah faux-bold */
   scrollbar-color: var(--ink-2) var(--bg);
   scrollbar-width: thin;
 }
@@ -29,13 +30,16 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 img, svg { display: block; max-width: 100%; }
 ul { list-style: none; padding: 0; }
 
-h1, h2, h3 { font-family: var(--font-display); font-weight: 600; line-height: 1.12; letter-spacing: -0.02em; text-wrap: balance; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 400; line-height: 1; letter-spacing: 0.012em; text-transform: uppercase; text-wrap: balance; }
 p { text-wrap: pretty; max-width: 62ch; }
 
 a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: 0.2em; }
 a:hover { text-decoration-thickness: 2px; }
 
 ::selection { background: var(--accent); color: var(--on-accent); }
+
+/* Halaman terkunci saat loader tampil */
+html.loading { overflow: hidden; }
 
 /* Scrollbar WebKit */
 ::-webkit-scrollbar { width: 10px; height: 10px; }

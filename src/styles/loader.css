@@ -1,0 +1,18 @@
+/* ---------- Loader: hitungan persen + jaring menggambar diri ---------- */
+.loader { display: none; position: fixed; inset: 0; z-index: 1000; place-items: center; background: var(--bg); color: var(--ink); overflow: hidden; clip-path: inset(0 0 0 0); }
+html.loading .loader, .loader.is-leaving { display: grid; }
+.loader__web { position: absolute; width: min(150vmin, 1100px); color: var(--web); opacity: 0.9; }
+.loader__web path { stroke-dasharray: 1; stroke-dashoffset: 1; animation: web-draw 1.5s var(--ease) forwards; }
+.loader__web .web-art__rings { animation-delay: 0.25s; }
+.loader__core { position: relative; display: grid; justify-items: center; gap: var(--s-4); }
+.loader__core .logo { color: var(--accent); }
+.loader__count { font-family: var(--font-display); font-size: clamp(5rem, 22vw, 11rem); line-height: 0.9; display: flex; align-items: flex-start; gap: 0.1em; letter-spacing: 0; }
+.loader__count i { font-style: normal; font-size: 0.28em; color: var(--accent); padding-top: 0.25em; }
+.loader__bar { width: min(62vw, 18rem); height: 3px; background: var(--line); border-radius: 3px; overflow: hidden; }
+.loader__bar span { display: block; height: 100%; background: var(--accent); transform-origin: left; transform: scaleX(0); }
+.loader__label { font-size: var(--step--1); letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-2); }
+.loader.is-leaving { animation: loader-out 0.85s cubic-bezier(0.76, 0, 0.24, 1) forwards; }
+.loader.is-leaving .loader__core { animation: core-out 0.5s var(--ease) forwards; }
+@keyframes loader-out { to { clip-path: inset(0 0 100% 0); } }
+@keyframes core-out { to { opacity: 0; transform: translateY(-1.5rem) scale(0.96); } }
+@keyframes web-draw { to { stroke-dashoffset: 0; } }

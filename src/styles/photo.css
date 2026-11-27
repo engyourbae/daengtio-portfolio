@@ -1,0 +1,87 @@
+/* ---------- Foto profil interaktif ---------- */
+@property --r { syntax: '<number>'; inherits: true; initial-value: 0; }
+
+.photo-wrap { position: absolute; inset: 0; }
+.photo {
+  --mx: 50%; --my: 40%; --rx: 0deg; --ry: 0deg; --r: 0;
+  position: absolute; inset: 0; display: block; width: 100%; height: 100%; cursor: pointer; perspective: 900px;
+  -webkit-user-select: none; user-select: none; touch-action: manipulation; border-radius: var(--r-m);
+  transition: --r 0.55s var(--ease);
+}
+.photo:focus-visible { outline-offset: 6px; }
+.photo__imgs { position: absolute; inset: 0; transform-style: preserve-3d; transform: rotateX(var(--rx)) rotateY(var(--ry)); transition: transform 0.25s ease-out; }
+
+.ph {
+  --on: 0; --v: 1;
+  position: absolute; left: 0; bottom: 0; width: 100%; height: 100%; object-fit: contain; object-position: center bottom;
+  opacity: calc(var(--on) * var(--v)); pointer-events: none;
+  filter: drop-shadow(0 22px 26px var(--shadow-photo));
+  transition: opacity 0.5s ease, transform 0.7s var(--ease), filter 0.5s ease;
+  will-change: opacity, transform;
+}
+.ph.v-red { --v: var(--v-red); }
+.ph.v-black { --v: var(--v-black); }
+.photo[data-stage='0'] .in-0, .photo[data-stage='1'] .in-1, .photo[data-stage='2'] .in-2 { --on: 1; }
+
+/* Pose aksi lebih lebar dari potret: dibesarkan agar tangan menjulur melewati bingkai */
+.ph--action { width: 128%; left: -14%; height: auto; max-height: none; top: auto; bottom: 0; aspect-ratio: auto; transform: scale(0.9) translateY(4%) rotate(-2deg); transform-origin: 50% 100%; }
+.photo[data-stage='2'] .ph--action { transform: none; }
+.photo[data-stage='2'] .ph--half { transform: scale(1.04) translateX(-3%); filter: drop-shadow(0 22px 26px var(--shadow-photo)) blur(2px); }
+.photo[data-stage='1'] .ph--half:not(.in-0) { transform: none; }
+
+/* Dengan foto "normal": lapisan half terungkap lewat mask yang mengikuti pointer */
+.photo[data-has-normal='true'] .ph--half {
+  -webkit-mask-image: radial-gradient(ellipse calc(var(--r) * 1%) calc(var(--r) * 0.8%) at var(--mx) var(--my), #000 55%, transparent 100%);
+  mask-image: radial-gradient(ellipse calc(var(--r) * 1%) calc(var(--r) * 0.8%) at var(--mx) var(--my), #000 55%, transparent 100%);
+}
+.photo[data-has-normal='true'][data-stage='1'] { --r: 34; }
+.photo[data-has-normal='true'][data-stage='2'] { --r: 160; }
+@media (hover: none) {
+  /* Layar sentuh: tap pertama menyapu seluruh foto dari titik sentuh */
+  .photo[data-has-normal='true'][data-stage='1'] { --r: 150; }
+}
+.photo[data-has-normal='true'][data-stage='2'] .ph--half { -webkit-mask-image: none; mask-image: none; }
+
+/* Spider-sense: riak di titik pointer */
+.photo__sense { position: absolute; left: var(--mx); top: var(--my); width: 0; height: 0; pointer-events: none; opacity: 0; }
+.photo__sense i { position: absolute; left: 0; top: 0; width: 7rem; height: 7rem; margin: -3.5rem 0 0 -3.5rem; border-radius: 50%; border: 2px solid var(--ring); opacity: 0; }
+.photo[data-stage='1'] .photo__sense { opacity: 1; }
+@media (prefers-reduced-motion: no-preference) {
+  .photo[data-stage='1'] .photo__sense i { animation: sense-ring 1.8s ease-out infinite; }
+  .photo[data-stage='1'] .photo__sense i:nth-child(2) { animation-delay: 0.6s; }
+  .photo[data-stage='1'] .photo__sense i:nth-child(3) { animation-delay: 1.2s; }
+}
+@keyframes sense-ring { 0% { transform: scale(0.15); opacity: 0.9; } 100% { transform: scale(1.5); opacity: 0; } }
+
+/* Burst jaring saat masuk pose aksi */
+.photo__burst { position: absolute; left: var(--mx); top: var(--my); width: min(70%, 18rem); aspect-ratio: 1; translate: -50% -50%; color: var(--ring); pointer-events: none; opacity: 0; }
+.photo__burst line, .photo__burst circle { stroke-dasharray: 1; stroke-dashoffset: 1; }
+.photo__burst circle { stroke-dasharray: none; transform-origin: center; transform: scale(0); }
+.photo.is-burst .photo__burst { opacity: 1; animation: burst-fade 0.9s ease-out forwards; }
+.photo.is-burst .photo__burst line { animation: burst-line 0.55s var(--ease) forwards; }
+.photo.is-burst .photo__burst circle { animation: burst-ring 0.7s var(--ease) forwards; }
+@keyframes burst-line { to { stroke-dashoffset: 0; } }
+@keyframes burst-ring { 0% { transform: scale(0.2); opacity: 1; } 100% { transform: scale(3.2); opacity: 0; } }
+@keyframes burst-fade { 0%, 60% { opacity: 1; } 100% { opacity: 0; } }
+
+/* Petunjuk kecil */
+.photo__hint {
+  position: absolute; right: 0; bottom: -0.4rem; z-index: 2; display: inline-flex; align-items: center; gap: 0.45rem;
+  padding: 0.4rem 0.8rem; border-radius: var(--r-pill); font-size: 0.78rem; font-weight: 600; letter-spacing: 0.02em;
+  background: var(--ink); color: var(--bg); pointer-events: none;
+  transition: opacity 0.4s ease, transform 0.4s var(--ease);
+}
+.hint--coarse { display: none; }
+@media (hover: none) { .hint--fine { display: none; } .hint--coarse { display: inline; } }
+.photo__hint.is-gone { opacity: 0; transform: translateY(6px); }
+@media (prefers-reduced-motion: no-preference) { .photo__hint svg { animation: hint-spin 6s linear infinite; } }
+@keyframes hint-spin { to { transform: rotate(360deg); } }
+
+/* Reduced motion: hanya crossfade, tanpa tilt, mask, riak, atau burst */
+@media (prefers-reduced-motion: reduce) {
+  .photo__imgs { transform: none !important; transition: none; }
+  .ph, .ph--action, .photo[data-stage='2'] .ph--action, .photo[data-stage='2'] .ph--half { transform: none !important; transition: opacity 0.3s linear; filter: drop-shadow(0 22px 26px var(--shadow-photo)); }
+  .ph--action { transform: none !important; }
+  .photo[data-has-normal='true'] .ph--half { -webkit-mask-image: none; mask-image: none; }
+  .photo__sense, .photo__burst { display: none; }
+}

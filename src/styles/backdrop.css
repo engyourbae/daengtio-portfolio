@@ -1,0 +1,24 @@
+/* ---------- Latar global ---------- */
+.backdrop { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+/* Halftone komik (terang) / titik biru baja (gelap), memudar dari pojok kanan atas */
+.backdrop__halftone {
+  position: absolute; inset: 0;
+  background-image: radial-gradient(circle, var(--halftone) 1.3px, transparent 1.9px);
+  background-size: 11px 11px;
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 100% 0%, #000 0%, transparent 70%);
+  mask-image: radial-gradient(ellipse 70% 60% at 100% 0%, #000 0%, transparent 70%);
+}
+.backdrop__web { position: absolute; color: var(--web); opacity: 0.55; }
+.backdrop__web--a { width: min(110vmin, 900px); left: -22vmin; top: -26vmin; }
+.backdrop__web--b { width: min(90vmin, 760px); right: -28vmin; bottom: -30vmin; }
+.backdrop__dust { position: absolute; inset: 0; width: 100%; height: 100%; opacity: var(--dust); transition: opacity 0.6s ease; }
+.backdrop__vignette { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 30%, transparent 40%, color-mix(in srgb, var(--bg) 85%, #000) 120%); opacity: var(--dust); transition: opacity 0.6s ease; }
+@media (prefers-reduced-motion: no-preference) {
+  .backdrop__web--a { animation: web-sway 14s ease-in-out infinite alternate; }
+  .backdrop__web--b { animation: web-sway 18s ease-in-out infinite alternate-reverse; }
+}
+@keyframes web-sway { from { transform: rotate(-2deg) scale(1); } to { transform: rotate(3deg) scale(1.03); } }
+
+/* ---------- Reveal saat scroll ---------- */
+html.motion [data-reveal] { opacity: 0; transform: translateY(28px); }
+html.motion [data-reveal].is-in { opacity: 1; transform: none; transition: opacity 0.9s var(--ease), transform 0.9s var(--ease); transition-delay: calc(var(--d, 0) * 90ms); }
