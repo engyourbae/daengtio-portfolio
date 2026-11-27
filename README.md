@@ -2,7 +2,7 @@
 Astro + TypeScript, statis, deploy ke GitHub Pages.
 
 ## Jalankan lokal
-`npm install` lalu `npm run dev`. Build: `npm run build`. Workflow GitHub Actions saat ini memakai `npm install` karena repository belum menyertakan `package-lock.json`. Untuk instalasi yang reproducible, jalankan `npm install` secara lokal lalu commit `package-lock.json`; setelah file itu tersedia, workflow dapat dikembalikan menggunakan `npm ci` dan cache npm.
+`npm install` lalu `npm run dev`. Build: `npm run build`. Jalankan `npm install` sekali lalu commit `package-lock.json`. Workflow otomatis memakai `npm ci` bila lockfile ada (fallback ke `npm install` bila belum), dengan cache npm.
 
 ## Ubah konten
 Semua teks, project, dan skill ada di `src/data/site.ts`. Aset di `public/assets/`:
