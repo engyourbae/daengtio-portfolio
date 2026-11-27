@@ -1,9 +1,20 @@
-name: Deploy
+name: Deploy to GitHub Pages
+
 on:
-  push: { branches: [main] }
+  push:
+    branches:
+      - main
   workflow_dispatch:
-permissions: { contents: read, pages: write, id-token: write }
-concurrency: { group: pages, cancel-in-progress: true }
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -14,17 +25,34 @@ jobs:
       PUBLIC_GITHUB_URL: ${{ vars.PUBLIC_GITHUB_URL }}
       PUBLIC_FORM_ENDPOINT: ${{ vars.PUBLIC_FORM_ENDPOINT }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: 22, cache: npm }
-      - run: npm ci
-      - run: npm run build
-      - uses: actions/upload-pages-artifact@v3
-        with: { path: dist }
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # This repository currently has no package-lock.json, so npm ci cannot run.
+      # npm install resolves dependencies from package.json and allows the first deployment.
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Build Astro site
+        run: npm run build
+
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
   deploy:
     needs: build
     runs-on: ubuntu-latest
-    environment: { name: github-pages, url: '${{ steps.d.outputs.page_url }}' }
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - id: d
+      - name: Deploy to GitHub Pages
+        id: deployment
         uses: actions/deploy-pages@v4
