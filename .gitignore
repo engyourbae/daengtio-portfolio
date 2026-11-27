@@ -1,6 +1,11 @@
-node_modules
-dist
-.astro
+node_modules/
+dist/
+.astro/
 .env
 .env.*
 !.env.example
+.DS_Store
+Thumbs.db
+*.log
+*.bak
+*.zip
