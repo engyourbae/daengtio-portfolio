@@ -33,10 +33,21 @@ jobs:
         with:
           node-version: 22
 
-      # This repository currently has no package-lock.json, so npm ci cannot run.
-      # npm install resolves dependencies from package.json and allows the first deployment.
+      - name: Cache npm
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ hashFiles('package.json', 'package-lock.json') }}
+          restore-keys: npm-${{ runner.os }}-
+
+      # Uses npm ci (reproducible) once package-lock.json is committed; falls back to npm install before that.
       - name: Install dependencies
-        run: npm install --no-audit --no-fund
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci --no-audit --no-fund
+          else
+            npm install --no-audit --no-fund
+          fi
 
       - name: Build Astro site
         run: npm run build
