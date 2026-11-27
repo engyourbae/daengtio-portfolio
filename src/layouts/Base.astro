@@ -4,6 +4,7 @@ import '@fontsource-variable/instrument-sans';
 import '../styles/tokens.css';
 import '../styles/base.css';
 import '../styles/components.css';
+import '../styles/sections.css';
 import '../styles/header.css';
 import '../styles/hero.css';
 import '../styles/photo.css';
@@ -13,6 +14,7 @@ import { asset, home, profile, seo } from '../data/site';
 import Backdrop from '../components/Backdrop.astro';
 import Loader from '../components/Loader.astro';
 import Motion from '../components/Motion.astro';
+import Interact from '../components/Interact.astro';
 
 interface Props { title?: string; description?: string; noindex?: boolean }
 const { title, description = seo.description, noindex = false } = Astro.props;
@@ -101,5 +103,6 @@ const jsonLd = {
     <Loader />
     <slot />
     <Motion />
+    <Interact />
   </body>
 </html>

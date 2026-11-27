@@ -181,6 +181,22 @@ export const skills = {
   ],
 };
 
+/** Turunan dari data di atas (bukan data baru): dipakai counter di Tentang dan panel di Skill. */
+export const stats = [
+  { value: projects.length, label: 'Project' },
+  { value: projects.filter((x) => x.tags.includes('Game')).length, label: 'Game' },
+  { value: skills.groups.reduce((n, g) => n + g.items.length, 0), label: 'Alat & teknologi' },
+];
+/** Skill beserta project yang menandainya lewat tag (dicocokkan tanpa membedakan huruf). Tanpa level kemahiran. */
+export const skillItems = skills.groups.flatMap((g, gi) =>
+  g.items.map((name) => ({
+    name,
+    group: gi,
+    groupName: g.name,
+    usedIn: projects.filter((x) => x.tags.some((t) => t.toLowerCase() === name.toLowerCase())).map((x) => x.title),
+  })),
+);
+
 /* ---------- Sertifikat (section tampil hanya bila diisi) ---------- */
 export interface Certificate { title: string; issuer: string; year: string; url?: string }
 export const certificates: Certificate[] = [];

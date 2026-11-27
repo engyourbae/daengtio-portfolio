@@ -1,12 +1,26 @@
 ---
-import { profile } from '../data/site';
+import { profile, nav, home } from '../data/site';
 import LogoMark from './LogoMark.astro';
+import Icon from './Icon.astro';
 const year = new Date().getFullYear();
 ---
 <footer class="site-footer">
-  <div class="wrap site-footer__row">
-    <span class="brand"><LogoMark variant="wordmark" size={72} /><span class="sr-only">engyourbae</span></span>
-    <span>© {year} {profile.name}</span>
-    <span>{profile.location}, {profile.coords}</span>
+  <div class="wrap">
+    <div class="site-footer__top">
+      <a class="brand" href={home} aria-label={`${profile.name}, beranda`}>
+        <LogoMark variant="wordmark" size={72} /><span class="sr-only">engyourbae</span>
+      </a>
+      <nav aria-label="Navigasi footer">
+        <ul class="site-footer__nav">
+          {nav.map((n) => <li><a href={n.href}>{n.label}</a></li>)}
+        </ul>
+      </nav>
+      <a class="totop" href="#main" data-magnetic><span>Ke atas</span><Icon name="arrow" size={18} class="totop__i" /></a>
+    </div>
+    <p class="site-footer__giant" aria-hidden="true">{profile.shortName}</p>
+    <div class="site-footer__row">
+      <span>© {year} {profile.name}</span>
+      <span>{profile.location}, {profile.coords}</span>
+    </div>
   </div>
 </footer>

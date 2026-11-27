@@ -1,18 +1,38 @@
 ---
-import { about } from '../data/site';
+import { about, stats } from '../data/site';
+import WebArt from './WebArt.astro';
+const words = about.title.split(' ');
+const [lede, ...rest] = about.paragraphs;
 ---
-<section class="section hairline" id="tentang" aria-labelledby="tentang-title">
-  <div class="wrap split">
-    <h2 id="tentang-title">{about.title}</h2>
-    <div>
-      <div class="about__body">
-        {about.paragraphs.map((t) => <p>{t}</p>)}
+<section class="section about" id="tentang" aria-labelledby="tentang-title">
+  <WebArt class="about__web" spokes={14} rings={7} />
+  <div class="wrap">
+    <p class="eyebrow" data-reveal><b aria-hidden="true">01</b>Tentang</p>
+    <h2 id="tentang-title" class="about__title">
+      {words.map((w, i) => <><span class="tw" data-reveal style={`--d:${i}`}>{w}</span>{' '}</>)}
+    </h2>
+
+    <div class="about__grid">
+      <div class="about__text">
+        <p class="lede" data-reveal>{lede}</p>
+        {rest.map((t, i) => <p data-reveal style={`--d:${i + 1}`}>{t}</p>)}
       </div>
-      <dl class="facts">
-        {about.facts.map((f) => (
-          <div><dt>{f.term}</dt><dd>{f.detail}</dd></div>
-        ))}
-      </dl>
+
+      <aside class="about__side" aria-label="Fakta singkat">
+        <ul class="stats">
+          {stats.map((s, i) => (
+            <li class="stat" data-reveal style={`--d:${i}`}>
+              <span class="stat__n" data-count={s.value}>{s.value}</span>
+              <span class="stat__l">{s.label}</span>
+            </li>
+          ))}
+        </ul>
+        <dl class="facts">
+          {about.facts.map((f, i) => (
+            <div data-reveal style={`--d:${i}`}><dt>{f.term}</dt><dd>{f.detail}</dd></div>
+          ))}
+        </dl>
+      </aside>
     </div>
   </div>
 </section>

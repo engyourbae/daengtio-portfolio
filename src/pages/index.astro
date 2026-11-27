@@ -9,6 +9,8 @@ import Skills from '../components/Skills.astro';
 import Certificates from '../components/Certificates.astro';
 import Contact from '../components/Contact.astro';
 import Footer from '../components/Footer.astro';
+import Divider from '../components/Divider.astro';
+import { certificates } from '../data/site';
 ---
 <Base>
   <Header />
@@ -16,8 +18,11 @@ import Footer from '../components/Footer.astro';
     <Hero />
     <Marquee />
     <About />
+    <Divider n="02" label="Project" />
     <Projects />
+    <Divider n="03" label="Skill" variant="b" />
     <Skills />
+    {certificates.length > 0 && <Divider n="04" label="Sertifikat" />}
     <Certificates />
     <Contact />
   </main>

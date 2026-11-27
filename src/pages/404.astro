@@ -1,15 +1,23 @@
 ---
 import Base from '../layouts/Base.astro';
 import Header from '../components/Header.astro';
+import WebArt from '../components/WebArt.astro';
+import Icon from '../components/Icon.astro';
 import { home } from '../data/site';
 ---
 <Base title="Halaman tidak ditemukan" noindex>
   <Header />
   <main id="main" class="notfound">
-    <div class="wrap">
+    <WebArt class="notfound__web" spokes={12} rings={6} sag={0.22} />
+    <div class="notfound__thread" aria-hidden="true"><span></span></div>
+    <div class="wrap notfound__in">
+      <p class="notfound__num" aria-hidden="true">404</p>
       <h1>Benang jaring putus di sini.</h1>
-      <p>Alamat yang Anda buka tidak ditemukan. Kembali ke beranda dan mulai dari awal.</p>
-      <a class="btn btn--accent" href={home}>Ke beranda</a>
+      <p class="notfound__lead">Alamat yang Anda buka tidak ditemukan. Kembali ke beranda dan mulai dari awal.</p>
+      <div class="notfound__cta">
+        <a class="btn btn--accent" href={home} data-magnetic>Ke beranda<Icon name="arrow" size={18} /></a>
+        <a class="btn btn--line" href={`${home}#project`} data-magnetic>Lihat project</a>
+      </div>
     </div>
   </main>
 </Base>

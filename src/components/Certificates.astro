@@ -1,18 +1,20 @@
 ---
 import { certificates } from '../data/site';
+import Icon from './Icon.astro';
 ---
 {certificates.length > 0 && (
-  <section class="section hairline" id="sertifikat" aria-labelledby="sertifikat-title">
+  <section class="section certs-sec" id="sertifikat" aria-labelledby="sertifikat-title">
     <div class="wrap">
-      <h2 id="sertifikat-title">Sertifikat.</h2>
+      <p class="eyebrow" data-reveal><b aria-hidden="true">04</b>Sertifikat</p>
+      <h2 id="sertifikat-title" data-reveal>Sertifikat.</h2>
       <ul class="certs">
-        {certificates.map((c) => (
-          <li>
-            <div>
-              {c.url ? <a href={c.url} target="_blank" rel="noopener noreferrer">{c.title}</a> : <strong>{c.title}</strong>}
-              <small>{c.issuer}</small>
-            </div>
-            <span>{c.year}</span>
+        {certificates.map((c, i) => (
+          <li data-reveal style={`--d:${i % 3}`}>
+            <span class="certs__year">{c.year}</span>
+            {c.url
+              ? <a class="certs__t" href={c.url} target="_blank" rel="noopener noreferrer">{c.title}<Icon name="arrow" size={16} /><span class="sr-only"> (tab baru)</span></a>
+              : <strong class="certs__t">{c.title}</strong>}
+            <small>{c.issuer}</small>
           </li>
         ))}
       </ul>

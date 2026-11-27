@@ -1,16 +1,63 @@
 ---
-import { skills } from '../data/site';
+import { skills, skillItems } from '../data/site';
+import WebArt from './WebArt.astro';
 ---
-<section class="section hairline" id="skill" aria-labelledby="skill-title">
+<section class="section skills" id="skill" aria-labelledby="skill-title" data-skills>
+  <WebArt class="skills__web" spokes={12} rings={6} />
   <div class="wrap">
-    <h2 id="skill-title">{skills.title}</h2>
-    <div class="skills__grid">
-      {skills.groups.map((g) => (
-        <div class="skill-group">
-          <h3>{g.name}</h3>
-          <ul>{g.items.map((i) => <li>{i}</li>)}</ul>
-        </div>
+    <p class="eyebrow" data-reveal><b aria-hidden="true">03</b>Skill</p>
+    <div class="sec-head">
+      <h2 id="skill-title" data-reveal>{skills.title}</h2>
+      <p data-reveal style="--d:1">Pilih satu alat untuk melihat project yang menandainya.</p>
+    </div>
+
+    <div class="skills__tabs" role="group" aria-label="Saring berdasarkan kelompok" data-reveal>
+      <button class="tab" type="button" data-filter="all" aria-pressed="true">Semua <small>{skillItems.length}</small></button>
+      {skills.groups.map((g, i) => (
+        <button class="tab" type="button" data-filter={String(i)} aria-pressed="false">{g.name} <small>{g.items.length}</small></button>
       ))}
     </div>
+
+    <ul class="cloud">
+      {skillItems.map((s, i) => (
+        <li data-reveal style={`--d:${i % 6}`}>
+          <button class="chip" type="button" data-group={s.group} data-name={s.name} data-group-name={s.groupName} data-used={s.usedIn.join('|')} aria-pressed="false">
+            <i aria-hidden="true"></i>{s.name}
+          </button>
+        </li>
+      ))}
+    </ul>
+
+    <p class="skills__panel" role="status" aria-live="polite" data-panel>Belum ada alat yang dipilih.</p>
   </div>
 </section>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-skills]');
+  if (root) {
+    const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('.tab'));
+    const chips = Array.from(root.querySelectorAll<HTMLButtonElement>('.chip'));
+    const panel = root.querySelector<HTMLElement>('[data-panel]')!;
+    const idle = panel.textContent ?? '';
+
+    const select = (chip: HTMLButtonElement | null) => {
+      chips.forEach((c) => c.setAttribute('aria-pressed', String(c === chip)));
+      if (!chip) { panel.textContent = idle; return; }
+      const used = (chip.dataset.used ?? '').split('|').filter(Boolean);
+      panel.textContent = '';
+      const strong = document.createElement('strong');
+      strong.textContent = chip.dataset.name ?? '';
+      panel.append(strong, ` (${chip.dataset.groupName}). `,
+        used.length ? `Ditandai pada project: ${used.join(', ')}.` : 'Tidak ditandai pada project tertentu di daftar.');
+    };
+    chips.forEach((c) => c.addEventListener('click', () => select(c.getAttribute('aria-pressed') === 'true' ? null : c)));
+
+    tabs.forEach((t) => t.addEventListener('click', () => {
+      const f = t.dataset.filter ?? 'all';
+      tabs.forEach((x) => x.setAttribute('aria-pressed', String(x === t)));
+      chips.forEach((c) => c.parentElement?.toggleAttribute('data-dim', f !== 'all' && c.dataset.group !== f));
+      const cur = chips.find((c) => c.getAttribute('aria-pressed') === 'true');
+      if (cur && f !== 'all' && cur.dataset.group !== f) select(null);
+    }));
+  }
+</script>

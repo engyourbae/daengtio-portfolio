@@ -1,0 +1,16 @@
+---
+/**
+ * Pemisah antar-section: benang jaring yang menjuntai dan "menggambar diri" saat masuk layar,
+ * dengan label nomor section yang tergantung di benang. Dekoratif (aria-hidden).
+ */
+interface Props { n: string; label: string; variant?: 'a' | 'b' }
+const { n, label, variant = 'a' } = Astro.props;
+const d = variant === 'a' ? 'M0 8Q600 88 1200 8' : 'M0 10Q400 92 1200 30';
+const pos = variant === 'a' ? '--x:50%;--y:48%' : '--x:41.7%;--y:54.5%';
+---
+<div class="divider" data-reveal aria-hidden="true" style={pos}>
+  <svg viewBox="0 0 1200 100" preserveAspectRatio="none" focusable="false">
+    <path class="divider__path" d={d} pathLength="1" />
+  </svg>
+  <span class="divider__label"><b>{n}</b>{label}</span>
+</div>

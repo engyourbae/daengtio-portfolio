@@ -89,3 +89,22 @@
   --dust: 1;
   --ring: #dbe4f2;
 }
+
+/* Panel gelap (Kontak). Terang: biru tua + cahaya merah; gelap: hitam dengan cahaya baja. */
+:root,
+:root[data-theme='terang'] {
+  --panel: #0b1233;
+  --on-panel: #f7f2ec;
+  --on-panel-2: #b9bfdc;
+  --panel-line: rgba(247, 242, 236, 0.24);
+  --accent-hi: #ff6b7a;
+  --glow: rgba(208, 19, 42, 0.5);
+}
+:root[data-theme='gelap'] {
+  --panel: #0e1117;
+  --on-panel: #e9edf3;
+  --on-panel-2: #9ba6b8;
+  --panel-line: rgba(205, 215, 230, 0.22);
+  --accent-hi: #d6dde8;
+  --glow: rgba(123, 156, 203, 0.32);
+}
