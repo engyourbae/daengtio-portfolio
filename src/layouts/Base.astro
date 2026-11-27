@@ -1,0 +1,27 @@
+---
+import '@fontsource-variable/bricolage-grotesque';
+import '@fontsource-variable/plus-jakarta-sans';
+import '../styles/global.css';
+import { profile, asset } from '../data/site';
+const { title = `${profile.name} · Web & Game Developer`, desc = profile.bio.slice(0, 155) } = Astro.props;
+const og = new URL(asset('og/og-default.png'), Astro.site).href;
+---
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>{title}</title><meta name="description" content={desc} />
+  <link rel="icon" href={asset('brand/brand-logo.svg')} type="image/svg+xml" />
+  <meta name="theme-color" content="#101420" />
+  <meta property="og:title" content={title} /><meta property="og:description" content={desc} /><meta property="og:image" content={og} /><meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <script is:inline>try{var t=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body><slot />
+<script>
+  document.getElementById('theme')?.addEventListener('click', () => {
+    const n = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = n;
+    try { localStorage.setItem('theme', n); } catch {}
+  });
+</script></body></html>

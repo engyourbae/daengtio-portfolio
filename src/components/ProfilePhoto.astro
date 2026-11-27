@@ -1,0 +1,25 @@
+---
+import { asset } from '../data/site';
+---
+<button class="pp" type="button" aria-pressed="false" aria-label="Ubah foto: tampilkan versi superhero">
+  <img class="base" src={asset('profile/profile-main.webp')} alt="Daeng Tio Waldi mengenakan almamater biru" width="900" height="1200" loading="lazy" />
+  <img class="fx light" src={asset('profile/profile-hero-red.webp')} alt="" width="900" height="1200" loading="lazy" />
+  <img class="fx dark" src={asset('profile/profile-hero-black.webp')} alt="" width="900" height="1200" loading="lazy" />
+  <span class="hint">Sentuh untuk mengubah</span>
+</button>
+<script>
+  const b = document.querySelector<HTMLButtonElement>('.pp')!;
+  b.addEventListener('click', () => b.setAttribute('aria-pressed', String(b.getAttribute('aria-pressed') !== 'true')));
+</script>
+<style>
+  .pp{position:relative;display:block;width:100%;max-width:420px;aspect-ratio:3/4;border:0;padding:0;border-radius:var(--r-lg);overflow:hidden;cursor:pointer;background:var(--surface);box-shadow:var(--shadow)}
+  .pp img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .fx{--p:100%;-webkit-mask-image:linear-gradient(100deg,#000 50%,transparent 70%);mask-image:linear-gradient(100deg,#000 50%,transparent 70%);-webkit-mask-size:320% 100%;mask-size:320% 100%;-webkit-mask-position:var(--p) 0;mask-position:var(--p) 0;transition:mask-position .7s cubic-bezier(.65,0,.35,1),-webkit-mask-position .7s cubic-bezier(.65,0,.35,1)}
+  .dark{display:none}
+  :global([data-theme=dark]) .light{display:none}
+  :global([data-theme=dark]) .dark{display:block}
+  .pp[aria-pressed=true] .fx{--p:0%}
+  @media (hover:hover){.pp:hover .fx{--p:0%}.hint{display:none}}
+  .hint{position:absolute;left:12px;bottom:12px;padding:.3rem .7rem;border-radius:99px;background:var(--bg);color:var(--text);font-size:.75rem}
+  @media (prefers-reduced-motion:reduce){.fx{transition:none}}
+</style>
