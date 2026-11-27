@@ -18,12 +18,12 @@ export const education = [{ school: 'FEBI IAIN Pontianak', major: 'Manajemen Bis
 export interface Project { title: string; desc?: string; logo?: string; url: string; featured?: boolean; tags: string[] }
 export const projects: Project[] = [
   { title: 'Kasir Daeng', desc: 'Sistem kasir toko berbasis web (PWA) dengan penyimpanan Supabase.', logo: 'projects/kasir-daeng-logo.webp', url: 'https://engyourbae.github.io/kasir-toko/', featured: true, tags: ['PWA', 'JavaScript', 'Supabase'] },
-  { title: 'Pintara', desc: 'Aplikasi belajar dengan game Komik Pintar.', url: 'https://engyourbae.github.io/pintara/', tags: ['TypeScript', 'React'] },
+  { title: 'Pintara', desc: 'Aplikasi belajar dengan game Komik Pintar.', logo: 'projects/pintara-logo.svg', url: 'https://engyourbae.github.io/pintara/', tags: ['TypeScript', 'React'] },
   { title: 'DuoPop', logo: 'projects/duopop-logo.webp', url: 'https://engyourbae.github.io/duopop-/', tags: ['Game'] },
   { title: 'FinancePay', desc: 'Dasbor keuangan.', logo: 'projects/financepay-logo.webp', url: 'https://engyourbae.github.io/finance-dashboard/', tags: ['Dashboard'] },
   { title: 'Bimtrack', logo: 'projects/bimtrack-logo.webp', url: 'https://engyourbae.github.io/Bimtrackk/', tags: ['Web App'] },
   { title: 'Tidal Tales', desc: 'Game memancing di GitHub Pages.', logo: 'projects/tidal-tales-logo.webp', url: 'https://engyourbae.github.io/tidal-tales/', tags: ['Game', 'JavaScript'] },
-  { title: 'Memory MBS 2023 A', desc: 'Situs kenangan angkatan 2023 A.', logo: 'projects/memory-mbs-logo.webp', url: 'https://komlaps2a-svg.github.io/memory-mbs23-/', tags: ['Web'] },
+  { title: 'Memory MBS 2023 A', desc: 'Situs kenangan angkatan 2023 A.', logo: 'projects/memory-mbs-logo.webp', url: 'https://engyourbae.github.io/memory-mbs23-/', tags: ['Web'] },
 ];
 export const skills = {
   Bahasa: ['JavaScript', 'TypeScript', 'HTML', 'CSS'],
