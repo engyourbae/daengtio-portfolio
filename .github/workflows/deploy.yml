@@ -2,8 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -20,12 +19,19 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL }}
-      BASE_PATH: ${{ vars.BASE_PATH }}
       PUBLIC_CONTACT_EMAIL: ${{ vars.PUBLIC_CONTACT_EMAIL }}
       PUBLIC_GITHUB_URL: ${{ vars.PUBLIC_GITHUB_URL }}
+      PUBLIC_INSTAGRAM_URL: ${{ vars.PUBLIC_INSTAGRAM_URL }}
       PUBLIC_FORM_ENDPOINT: ${{ vars.PUBLIC_FORM_ENDPOINT }}
+      PUBLIC_URL_KASIR_DAENG: ${{ vars.PUBLIC_URL_KASIR_DAENG }}
+      PUBLIC_URL_PINTARA: ${{ vars.PUBLIC_URL_PINTARA }}
+      PUBLIC_URL_DUOPOP: ${{ vars.PUBLIC_URL_DUOPOP }}
+      PUBLIC_URL_FINANCEPAY: ${{ vars.PUBLIC_URL_FINANCEPAY }}
+      PUBLIC_URL_BIMTRACK: ${{ vars.PUBLIC_URL_BIMTRACK }}
+      PUBLIC_URL_TIDAL_TALES: ${{ vars.PUBLIC_URL_TIDAL_TALES }}
+      PUBLIC_URL_MEMORY_MBS: ${{ vars.PUBLIC_URL_MEMORY_MBS }}
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Set up Node.js
@@ -40,7 +46,22 @@ jobs:
           key: npm-${{ runner.os }}-${{ hashFiles('package.json', 'package-lock.json') }}
           restore-keys: npm-${{ runner.os }}-
 
-      # Uses npm ci (reproducible) once package-lock.json is committed; falls back to npm install before that.
+      # BASE_PATH: pakai vars.BASE_PATH bila diisi, jika tidak pakai nama repo ("/" untuk repo *.github.io).
+      - name: Resolve base path
+        env:
+          VAR_BASE_PATH: ${{ vars.BASE_PATH }}
+        run: |
+          REPO="${GITHUB_REPOSITORY#*/}"
+          if [ -n "$VAR_BASE_PATH" ]; then
+            BASE="$VAR_BASE_PATH"
+          elif [[ "$REPO" == *.github.io ]]; then
+            BASE="/"
+          else
+            BASE="/$REPO"
+          fi
+          echo "BASE_PATH=$BASE" >> "$GITHUB_ENV"
+          echo "Base path: $BASE"
+
       - name: Install dependencies
         run: |
           if [ -f package-lock.json ]; then
@@ -49,10 +70,10 @@ jobs:
             npm install --no-audit --no-fund
           fi
 
-      - name: Build Astro site
+      - name: Build
         run: npm run build
 
-      - name: Upload GitHub Pages artifact
+      - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist
