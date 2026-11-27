@@ -1,27 +1,82 @@
 ---
-import '@fontsource-variable/bricolage-grotesque';
-import '@fontsource-variable/plus-jakarta-sans';
-import '../styles/global.css';
-import { profile, asset } from '../data/site';
-const { title = `${profile.name} · Web & Game Developer`, desc = profile.bio.slice(0, 155) } = Astro.props;
-const og = new URL(asset('og/og-default.png'), Astro.site).href;
+import '@fontsource-variable/unbounded';
+import '@fontsource-variable/instrument-sans';
+import '../styles/tokens.css';
+import '../styles/base.css';
+import '../styles/components.css';
+import { asset, home, profile, seo } from '../data/site';
+
+interface Props { title?: string; description?: string; noindex?: boolean }
+const { title, description = seo.description, noindex = false } = Astro.props;
+
+const fullTitle = title ? `${title} | ${profile.name}` : seo.title;
+const site = Astro.site ?? new URL('https://engyourbae.github.io');
+const canonical = new URL(Astro.url.pathname, site).href;
+const ogImage = new URL(asset('og/og-default.png'), site).href;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: profile.name,
+  jobTitle: profile.role,
+  url: new URL(home, site).href,
+  image: ogImage,
+  address: { '@type': 'PostalAddress', addressLocality: profile.location, addressCountry: 'ID' },
+  affiliation: { '@type': 'CollegeOrUniversity', name: 'IAIN Pontianak' },
+  sameAs: [profile.github, profile.instagram],
+};
 ---
 <!doctype html>
-<html lang="id">
-<head>
-  <meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>{title}</title><meta name="description" content={desc} />
-  <link rel="icon" href={asset('brand/brand-logo.svg')} type="image/svg+xml" />
-  <meta name="theme-color" content="#101420" />
-  <meta property="og:title" content={title} /><meta property="og:description" content={desc} /><meta property="og:image" content={og} /><meta property="og:type" content="website" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <script is:inline>try{var t=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.dataset.theme=t}catch(e){}</script>
-</head>
-<body><slot />
-<script>
-  document.getElementById('theme')?.addEventListener('click', () => {
-    const n = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
-    document.documentElement.dataset.theme = n;
-    try { localStorage.setItem('theme', n); } catch {}
-  });
-</script></body></html>
+<html lang="id" data-theme="siang">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <meta name="author" content={profile.name} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+
+    <meta name="theme-color" content="#EFF3EE" />
+    <link rel="icon" href={asset('brand/favicon.ico')} sizes="48x48" />
+    <link rel="icon" href={asset('brand/favicon-32.png')} type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href={asset('brand/apple-touch-icon.png')} />
+    <link rel="manifest" href={`${home}site.webmanifest`} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="id_ID" />
+    <meta property="og:site_name" content={profile.name} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${profile.name}, ${profile.role}`} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+    <!-- Tema diterapkan sebelum render pertama agar tidak berkedip. -->
+    <script is:inline>
+      (function () {
+        var t;
+        try { t = localStorage.getItem('dt-theme'); } catch (e) {}
+        if (t !== 'siang' && t !== 'malam' && t !== 'zenith') {
+          t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'malam' : 'siang';
+        }
+        document.documentElement.setAttribute('data-theme', t);
+        var c = { siang: '#EFF3EE', malam: '#071A1B', zenith: '#1D3BF0' }[t];
+        var m = document.querySelector('meta[name="theme-color"]');
+        if (m) m.setAttribute('content', c);
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="skip" href="#main">Lewati ke konten</a>
+    <slot />
+  </body>
+</html>

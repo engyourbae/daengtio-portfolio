@@ -1,3 +1,16 @@
-{"name":"daengtio-portfolio","type":"module","version":"1.0.0","private":true,
-"scripts":{"dev":"astro dev","build":"astro build","preview":"astro preview"},
-"dependencies":{"@fontsource-variable/bricolage-grotesque":"^5.1.0","@fontsource-variable/plus-jakarta-sans":"^5.1.0","astro":"^5.1.0"}}
+{
+  "name": "daengtio-portfolio",
+  "type": "module",
+  "version": "2.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@fontsource-variable/instrument-sans": "^5.1.0",
+    "@fontsource-variable/unbounded": "^5.1.0",
+    "astro": "^5.1.0"
+  }
+}

@@ -1,0 +1,10 @@
+---
+import { asset } from '../data/site';
+interface Props { size?: number; variant?: 'mark' | 'wordmark' }
+const { size = 32, variant = 'mark' } = Astro.props;
+// Logo engyourbae dipakai sebagai mask, sehingga warnanya mengikuti warna teks (currentColor) di semua tema.
+const src = asset(variant === 'mark' ? 'brand/mark.png' : 'brand/wordmark.png');
+const height = variant === 'mark' ? size : Math.round((size * 659) / 671);
+const style = `width:${size}px;height:${height}px;-webkit-mask-image:url(${src});mask-image:url(${src})`;
+---
+<span class="logo" style={style} aria-hidden="true"></span>

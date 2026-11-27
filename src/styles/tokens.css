@@ -1,0 +1,76 @@
+/* Token desain. Konsep: garis khatulistiwa (Pontianak berada di 0°). */
+:root {
+  --font-display: 'Unbounded Variable', 'Unbounded', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Instrument Sans Variable', 'Instrument Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  /* Skala tipografi fluid */
+  --step--1: clamp(0.8125rem, 0.79rem + 0.1vw, 0.875rem);
+  --step-0: clamp(1rem, 0.96rem + 0.2vw, 1.125rem);
+  --step-1: clamp(1.2rem, 1.05rem + 0.6vw, 1.5rem);
+  --step-2: clamp(1.5rem, 1.2rem + 1.2vw, 2.25rem);
+  --step-3: clamp(1.75rem, 1.25rem + 2.2vw, 3.25rem);
+  --step-hero: clamp(1.85rem, 1.05rem + 3.5vw, 3.9rem);
+
+  /* Ritme spasi */
+  --s-1: 0.25rem;
+  --s-2: 0.5rem;
+  --s-3: 0.75rem;
+  --s-4: 1rem;
+  --s-5: 1.5rem;
+  --s-6: 2.5rem;
+  --s-7: 4rem;
+  --s-8: clamp(4rem, 9vw, 8rem);
+
+  --gutter: clamp(1.25rem, 4vw, 3rem);
+  --wrap: min(100% - 2 * var(--gutter), 76rem);
+  --header-h: 4rem;
+
+  /* Radius bertingkat sesuai hierarki */
+  --r-s: 6px;
+  --r-m: 14px;
+  --r-l: 28px;
+  --r-pill: 999px;
+
+  --ease: cubic-bezier(0.2, 0.7, 0.1, 1);
+  --dur: 0.35s;
+}
+
+@media (min-width: 1800px) { :root { font-size: 112.5%; } }
+@media (min-width: 2400px) { :root { font-size: 131%; } }
+
+/* Siang: terang, hijau-abu dingin, matahari jingga */
+:root,
+:root[data-theme='siang'] {
+  color-scheme: light;
+  --bg: #eff3ee;
+  --bg-2: #e2e9e2;
+  --ink: #0c2625;
+  --ink-2: #3c5553;
+  --line: rgba(12, 38, 37, 0.2);
+  --accent: #ff6b2c;
+  --on-accent: #0c2625;
+}
+
+/* Malam: biru-hijau laut dalam, matahari kuning emas */
+:root[data-theme='malam'] {
+  color-scheme: dark;
+  --bg: #071a1b;
+  --bg-2: #0e2a2b;
+  --ink: #e7f1ec;
+  --ink-2: #9db5af;
+  --line: rgba(231, 241, 236, 0.2);
+  --accent: #ffb340;
+  --on-accent: #071a1b;
+}
+
+/* Zenith: matahari tepat di atas kepala, biru kobalt penuh */
+:root[data-theme='zenith'] {
+  color-scheme: dark;
+  --bg: #1d3bf0;
+  --bg-2: #1630cc;
+  --ink: #f6f7ff;
+  --ink-2: #c9d2ff;
+  --line: rgba(246, 247, 255, 0.3);
+  --accent: #ffe14d;
+  --on-accent: #101a66;
+}

@@ -1,0 +1,58 @@
+---
+import { projects } from '../data/site';
+import Icon from './Icon.astro';
+import type { Project } from '../data/site';
+
+const featured = projects.find((x) => x.featured) ?? projects[0];
+const rest = projects.filter((x) => x !== featured);
+const initial = (x: Project) => x.title.trim().charAt(0).toUpperCase();
+---
+<section class="section hairline" id="project" aria-labelledby="project-title">
+  <div class="wrap">
+    <div class="projects__head">
+      <h2 id="project-title">Project yang sudah berjalan.</h2>
+      <p>Semua bisa dibuka dan dicoba langsung.</p>
+    </div>
+
+    <article class="feature">
+      <div class:list={['proj-icon', !featured.icon && 'proj-icon--mono']}>
+        {featured.icon ? <img src={featured.icon} width="160" height="160" alt="" loading="lazy" decoding="async" /> : <span aria-hidden="true">{initial(featured)}</span>}
+      </div>
+      <div>
+        <h3>{featured.title}</h3>
+        <p>{featured.desc}</p>
+        <ul class="tags">{featured.tags.map((t) => <li>{t}</li>)}</ul>
+      </div>
+      {featured.url ? (
+        <a class="btn" href={featured.url} target="_blank" rel="noopener noreferrer">
+          Buka {featured.title}<Icon name="arrow" size={18} />
+          <span class="sr-only"> (tab baru)</span>
+        </a>
+      ) : <span>Segera hadir</span>}
+    </article>
+
+    <ul class="plist">
+      {rest.map((x) => {
+        const Tag = x.url ? 'a' : 'div';
+        const attrs = x.url ? { href: x.url, target: '_blank', rel: 'noopener noreferrer' } : {};
+        return (
+          <li>
+            <Tag class="prow" {...attrs}>
+              <div class:list={['proj-icon', !x.icon && 'proj-icon--mono']}>
+                {x.icon ? <img src={x.icon} width="112" height="112" alt="" loading="lazy" decoding="async" /> : <span aria-hidden="true">{initial(x)}</span>}
+              </div>
+              <div>
+                <h3>{x.title}</h3>
+                <p>{x.desc}</p>
+                <ul class="tags">{x.tags.map((t) => <li>{t}</li>)}</ul>
+              </div>
+              {x.url ? (
+                <span class="prow__go"><Icon name="arrow" size={18} /><span class="sr-only">Buka {x.title} (tab baru)</span></span>
+              ) : <span class="prow__soon">Segera hadir</span>}
+            </Tag>
+          </li>
+        );
+      })}
+    </ul>
+  </div>
+</section>

@@ -1,0 +1,21 @@
+---
+import { certificates } from '../data/site';
+---
+{certificates.length > 0 && (
+  <section class="section hairline" id="sertifikat" aria-labelledby="sertifikat-title">
+    <div class="wrap">
+      <h2 id="sertifikat-title">Sertifikat.</h2>
+      <ul class="certs">
+        {certificates.map((c) => (
+          <li>
+            <div>
+              {c.url ? <a href={c.url} target="_blank" rel="noopener noreferrer">{c.title}</a> : <strong>{c.title}</strong>}
+              <small>{c.issuer}</small>
+            </div>
+            <span>{c.year}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+)}

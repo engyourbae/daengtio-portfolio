@@ -1,25 +1,23 @@
 ---
-import { asset } from '../data/site';
+import { photos } from '../data/site';
+const { main, alt, width, height, altWidth, altHeight, altText } = photos;
 ---
-<button class="pp" type="button" aria-pressed="false" aria-label="Ubah foto: tampilkan versi superhero">
-  <img class="base" src={asset('profile/profile-main.webp')} alt="Daeng Tio Waldi mengenakan almamater biru" width="900" height="1200" loading="lazy" />
-  <img class="fx light" src={asset('profile/profile-hero-red.webp')} alt="" width="900" height="1200" loading="lazy" />
-  <img class="fx dark" src={asset('profile/profile-hero-black.webp')} alt="" width="900" height="1200" loading="lazy" />
-  <span class="hint">Sentuh untuk mengubah</span>
-</button>
+{alt ? (
+  <button class="photo" type="button" data-photo aria-pressed="false" aria-label="Ganti foto">
+    <img class="photo__main" src={main} width={width} height={height} alt={altText} decoding="async" fetchpriority="high" />
+    <img class="photo__alt" src={alt} width={altWidth} height={altHeight} alt="" decoding="async" />
+  </button>
+) : (
+  <div class="photo">
+    <img src={main} width={width} height={height} alt={altText} decoding="async" fetchpriority="high" />
+  </div>
+)}
+
 <script>
-  const b = document.querySelector<HTMLButtonElement>('.pp')!;
-  b.addEventListener('click', () => b.setAttribute('aria-pressed', String(b.getAttribute('aria-pressed') !== 'true')));
+  // Desktop: hover lewat CSS. Layar sentuh dan keyboard: tap/Enter untuk berganti foto.
+  const el = document.querySelector<HTMLButtonElement>('[data-photo]');
+  el?.addEventListener('click', () => {
+    const on = el.classList.toggle('is-alt');
+    el.setAttribute('aria-pressed', String(on));
+  });
 </script>
-<style>
-  .pp{position:relative;display:block;width:100%;max-width:420px;aspect-ratio:3/4;border:0;padding:0;border-radius:var(--r-lg);overflow:hidden;cursor:pointer;background:var(--surface);box-shadow:var(--shadow)}
-  .pp img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-  .fx{--p:100%;-webkit-mask-image:linear-gradient(100deg,#000 50%,transparent 70%);mask-image:linear-gradient(100deg,#000 50%,transparent 70%);-webkit-mask-size:320% 100%;mask-size:320% 100%;-webkit-mask-position:var(--p) 0;mask-position:var(--p) 0;transition:mask-position .7s cubic-bezier(.65,0,.35,1),-webkit-mask-position .7s cubic-bezier(.65,0,.35,1)}
-  .dark{display:none}
-  :global([data-theme=dark]) .light{display:none}
-  :global([data-theme=dark]) .dark{display:block}
-  .pp[aria-pressed=true] .fx{--p:0%}
-  @media (hover:hover){.pp:hover .fx{--p:0%}.hint{display:none}}
-  .hint{position:absolute;left:12px;bottom:12px;padding:.3rem .7rem;border-radius:99px;background:var(--bg);color:var(--text);font-size:.75rem}
-  @media (prefers-reduced-motion:reduce){.fx{transition:none}}
-</style>

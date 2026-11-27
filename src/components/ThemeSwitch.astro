@@ -1,0 +1,39 @@
+---
+import Icon from './Icon.astro';
+const themes = [
+  { id: 'siang', label: 'Siang', icon: 'sun' },
+  { id: 'malam', label: 'Malam', icon: 'moon' },
+  { id: 'zenith', label: 'Zenith', icon: 'split' },
+];
+---
+<div class="theme" role="group" aria-label="Pilih tema">
+  {themes.map((t) => (
+    <button type="button" data-theme-set={t.id} aria-pressed="false" aria-label={`Tema ${t.label}`}>
+      <Icon name={t.icon} size={18} />
+      <span class="theme__label">{t.label}</span>
+    </button>
+  ))}
+</div>
+
+<script>
+  const COLORS: Record<string, string> = { siang: '#EFF3EE', malam: '#071A1B', zenith: '#1D3BF0' };
+  const root = document.documentElement;
+  const buttons = document.querySelectorAll<HTMLButtonElement>('[data-theme-set]');
+
+  const sync = () => buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.themeSet === root.dataset.theme)));
+  sync();
+
+  buttons.forEach((b) =>
+    b.addEventListener('click', () => {
+      const t = b.dataset.themeSet as string;
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        root.classList.add('theme-anim');
+        window.setTimeout(() => root.classList.remove('theme-anim'), 450);
+      }
+      root.dataset.theme = t;
+      try { localStorage.setItem('dt-theme', t); } catch (e) { /* penyimpanan diblokir */ }
+      document.querySelector('meta[name="theme-color"]')?.setAttribute('content', COLORS[t]);
+      sync();
+    }),
+  );
+</script>

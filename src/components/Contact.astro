@@ -1,0 +1,67 @@
+---
+import { profile } from '../data/site';
+import Icon from './Icon.astro';
+const hasForm = Boolean(profile.formEndpoint);
+---
+<section class="section contact" id="kontak" aria-labelledby="kontak-title">
+  <div class="wrap">
+    <div class:list={['contact__grid', hasForm && 'has-form']}>
+      <div>
+        <h2 id="kontak-title">Punya ide atau kebutuhan? Ceritakan.</h2>
+        <a class="contact__mail" href={`mailto:${profile.email}`}>{profile.email}</a>
+        <div class="contact__actions">
+          <button class="btn btn--accent" type="button" data-copy={profile.email}>
+            <Icon name="copy" size={18} /><span data-copy-label>Salin email</span>
+          </button>
+          <a class="btn" href={profile.instagram} target="_blank" rel="noopener noreferrer">
+            <Icon name="instagram" size={18} />Instagram<span class="sr-only"> (tab baru)</span>
+          </a>
+          <a class="btn" href={profile.github} target="_blank" rel="noopener noreferrer">
+            <Icon name="github" size={18} />GitHub<span class="sr-only"> (tab baru)</span>
+          </a>
+        </div>
+      </div>
+
+      {hasForm && (
+        <form data-form action={profile.formEndpoint} method="POST">
+          <div class="field"><label for="f-nama">Nama</label><input id="f-nama" name="name" autocomplete="name" required /></div>
+          <div class="field"><label for="f-email">Email</label><input id="f-email" name="email" type="email" autocomplete="email" required /></div>
+          <div class="field"><label for="f-pesan">Pesan</label><textarea id="f-pesan" name="message" required></textarea></div>
+          <input class="hp" type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" />
+          <button class="btn btn--accent" type="submit">Kirim pesan</button>
+          <p class="form__status" role="status" aria-live="polite" data-status></p>
+        </form>
+      )}
+    </div>
+  </div>
+</section>
+
+<script>
+  const copyBtn = document.querySelector<HTMLButtonElement>('[data-copy]');
+  const label = document.querySelector<HTMLElement>('[data-copy-label]');
+  copyBtn?.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(copyBtn.dataset.copy ?? '');
+      if (label) label.textContent = 'Email tersalin';
+    } catch {
+      if (label) label.textContent = 'Salin manual dari tautan';
+    }
+    window.setTimeout(() => { if (label) label.textContent = 'Salin email'; }, 2200);
+  });
+
+  const form = document.querySelector<HTMLFormElement>('[data-form]');
+  const status = document.querySelector<HTMLElement>('[data-status]');
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!status) return;
+    status.textContent = 'Mengirim...';
+    try {
+      const res = await fetch(form.action, { method: 'POST', body: new FormData(form), headers: { Accept: 'application/json' } });
+      if (!res.ok) throw new Error(String(res.status));
+      form.reset();
+      status.textContent = 'Pesan terkirim. Saya balas lewat email.';
+    } catch {
+      status.textContent = 'Pesan belum terkirim. Coba lagi, atau kirim langsung ke email di atas.';
+    }
+  });
+</script>

@@ -1,0 +1,15 @@
+---
+import Base from '../layouts/Base.astro';
+import Header from '../components/Header.astro';
+import { home } from '../data/site';
+---
+<Base title="Halaman tidak ditemukan" noindex>
+  <Header />
+  <main id="main" class="notfound">
+    <div class="wrap">
+      <h1>Titik ini tidak ada di peta.</h1>
+      <p>Alamat yang Anda buka tidak ditemukan. Kembali ke garis 0° dan mulai dari beranda.</p>
+      <a class="btn btn--accent" href={home}>Ke beranda</a>
+    </div>
+  </main>
+</Base>

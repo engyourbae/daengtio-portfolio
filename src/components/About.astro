@@ -1,0 +1,18 @@
+---
+import { about } from '../data/site';
+---
+<section class="section hairline" id="tentang" aria-labelledby="tentang-title">
+  <div class="wrap split">
+    <h2 id="tentang-title">{about.title}</h2>
+    <div>
+      <div class="about__body">
+        {about.paragraphs.map((t) => <p>{t}</p>)}
+      </div>
+      <dl class="facts">
+        {about.facts.map((f) => (
+          <div><dt>{f.term}</dt><dd>{f.detail}</dd></div>
+        ))}
+      </dl>
+    </div>
+  </div>
+</section>

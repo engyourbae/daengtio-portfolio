@@ -1,0 +1,23 @@
+---
+import { profile } from '../data/site';
+import ProfilePhoto from './ProfilePhoto.astro';
+---
+<section class="hero" aria-labelledby="hero-title">
+  <div class="wrap hero__grid">
+    <div>
+      {profile.available && <p class="badge">{profile.availableLabel}</p>}
+      <h1 id="hero-title">{profile.headline}</h1>
+      <p class="hero__intro">{profile.intro}</p>
+      <div class="hero__cta">
+        <a class="btn btn--accent" href="#project">Lihat project</a>
+        <a class="btn btn--line" href="#kontak">Hubungi saya</a>
+      </div>
+      <p class="hero__place">{profile.location}, tepat di garis khatulistiwa ({profile.coords})</p>
+    </div>
+    <div class="stage">
+      <span class="stage__sun" aria-hidden="true"></span>
+      <span class="stage__line" aria-hidden="true"></span>
+      <ProfilePhoto />
+    </div>
+  </div>
+</section>

@@ -1,0 +1,12 @@
+---
+import { profile } from '../data/site';
+import LogoMark from './LogoMark.astro';
+const year = new Date().getFullYear();
+---
+<footer class="site-footer">
+  <div class="wrap site-footer__row">
+    <span class="brand"><LogoMark variant="wordmark" size={72} /><span class="sr-only">engyourbae</span></span>
+    <span>© {year} {profile.name}</span>
+    <span>{profile.location}, {profile.coords}</span>
+  </div>
+</footer>
