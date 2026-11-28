@@ -127,7 +127,7 @@ a.pcard:hover .pcard__go, a.pcard.is-touch .pcard__go, a.pcard:focus-visible .pc
 /* ---------- Skill ---------- */
 .skills { overflow: clip; }
 .skills__web { position: absolute; z-index: 0; left: 50%; top: 50%; translate: -50% calc(-50% + var(--py, 0px)); width: min(72rem, 180vw); color: var(--web); opacity: 0.5; pointer-events: none; }
-@media (prefers-reduced-motion: no-preference) { .skills__web { animation: web-spin 160s linear infinite; } }
+@media screen { .skills__web { animation: web-spin 160s linear infinite; } }
 @keyframes web-spin { to { rotate: 360deg; } }
 .skills .wrap { position: relative; z-index: 1; }
 .skills__tabs { display: flex; flex-wrap: wrap; gap: var(--s-2); margin-bottom: var(--s-6); }
@@ -277,14 +277,14 @@ html:not(.js) .copy__tip { display: none; }
 .notfound__web { position: absolute; z-index: -1; right: -12rem; top: 50%; translate: 0 -50%; width: min(62rem, 150vw); color: var(--web); }
 .notfound__thread { position: absolute; z-index: -1; top: 0; right: clamp(3rem, 22vw, 24rem); width: 2px; height: 30vh; background: var(--ink-2); }
 .notfound__thread span { position: absolute; left: 0; top: 100%; width: 2px; height: 3.5rem; background: var(--accent); transform-origin: top center; transform: rotate(-8deg); }
-@media (prefers-reduced-motion: no-preference) { .notfound__thread span { animation: swing 2.8s ease-in-out infinite alternate; } }
+@media screen { .notfound__thread span { animation: swing 2.8s ease-in-out infinite alternate; } }
 @keyframes swing { from { transform: rotate(-14deg); } to { transform: rotate(14deg); } }
 .notfound__num { max-width: none; font-family: var(--font-display); font-size: clamp(7rem, 3rem + 26vw, 22rem); line-height: 0.8; color: transparent; -webkit-text-stroke: 2px var(--accent); }
 .notfound h1 { font-size: var(--step-hero); max-width: 16ch; margin-top: var(--s-4); }
 .notfound__lead { margin-top: var(--s-4); font-size: var(--step-1); color: var(--ink-2); }
 .notfound__cta { display: flex; flex-wrap: wrap; gap: var(--s-3); margin-top: var(--s-6); }
 
-@media (prefers-reduced-motion: reduce) {
+@media not all {
   html.motion .divider svg { clip-path: none; }
   .feature, .pcard { transform: none !important; }
   .btn, .totop { translate: none; }

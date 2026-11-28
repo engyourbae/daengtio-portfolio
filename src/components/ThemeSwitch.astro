@@ -22,7 +22,7 @@ const themes = [
   const COLORS: Record<string, string> = { terang: '#F7F2EC', gelap: '#06070A' };
   const root = document.documentElement;
   const buttons = document.querySelectorAll<HTMLButtonElement>('[data-theme-set]');
-  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const reduce = { matches: false }; // animasi selalu hidup (tidak mengikuti 'kurangi gerak' OS)
 
   let want = root.dataset.theme ?? 'terang'; // diperbarui sinkron, supaya klik beruntun tidak salah baca
   let swapT = 0;

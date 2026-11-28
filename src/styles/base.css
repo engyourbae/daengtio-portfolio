@@ -9,7 +9,7 @@ html {
   scrollbar-color: var(--ink-2) var(--bg);
   scrollbar-width: thin;
 }
-@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+@media screen { html { scroll-behavior: smooth; } }
 
 body {
   min-height: 100dvh;
@@ -31,7 +31,7 @@ html.theme-swap, html.theme-swap *, html.theme-swap *::before, html.theme-swap *
 ::view-transition-old(root) { animation: none; mix-blend-mode: normal; }
 ::view-transition-new(root) { animation: vt-fade 0.35s ease both; mix-blend-mode: normal; }
 @keyframes vt-fade { from { opacity: 0; } to { opacity: 1; } }
-@media (prefers-reduced-motion: reduce) {
+@media not all {
   ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
 }
 
@@ -90,6 +90,6 @@ textarea { resize: vertical; min-height: 7rem; }
 }
 .skip:focus-visible { top: var(--s-4); }
 
-@media (prefers-reduced-motion: reduce) {
+@media not all {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }

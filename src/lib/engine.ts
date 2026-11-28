@@ -11,9 +11,9 @@ export const lerp = (a: number, b: number, t: number): number => a + (b - a) * t
 /** Faktor lerp yang tidak bergantung frame rate. rate ~ 4 (lambat) sampai 20 (cepat). */
 export const damp = (rate: number, dt: number): number => 1 - Math.exp(-rate * dt);
 
-const mqReduce = window.matchMedia('(prefers-reduced-motion: reduce)');
 const mqFine = window.matchMedia('(hover: hover) and (pointer: fine)');
-export const reduced = (): boolean => mqReduce.matches;
+/** Selalu false: animasi tidak mengikuti pengaturan 'kurangi gerak' OS (permintaan pemilik agar laptop = HP). */
+export const reduced = (): boolean => false;
 export const finePointer = (): boolean => mqFine.matches;
 
 const root = document.documentElement;
@@ -200,12 +200,3 @@ const nav = navigator as Navigator & { deviceMemory?: number };
 export const weakDevice: boolean = (nav.hardwareConcurrency || 8) <= 4 || (nav.deviceMemory ?? 8) <= 2;
 /** true bila html.perf-lite dipasang loader (rata-rata dt rAF > 24 ms). Kurangi hiasan, bukan konten. */
 export const lite = (): boolean => root.classList.contains('perf-lite');
-
-/* ---------- Reduced motion berubah saat halaman terbuka ---------- */
-mqReduce.addEventListener?.('change', () => {
-  if (mqReduce.matches) {
-    root.classList.remove('motion');
-    root.classList.add('is-reduced');
-  }
-});
-if (mqReduce.matches) root.classList.add('is-reduced');

@@ -11,7 +11,7 @@ Portofolio pribadi Daeng Tio Waldi. Astro 5 + TypeScript, situs statis, deploy k
 - **Latar halus** (`Backdrop.astro`, `src/lib/backdrop.ts`): glow tint per section, sorot mengikuti kursor, debu tiga kedalaman (tema gelap).
 - **Interaksi di semua elemen**: hover, sentuh (`.is-touch`, ikut berpindah saat jari menggeser), dan fokus keyboard memakai gaya yang sama. Kursor titik + cincin dengan label (`Buka`, `Radar`, `Tarik`, `Salin`, `Kirim`, ...) hanya untuk mouse.
 - **Satu loop `requestAnimationFrame`** (`src/lib/engine.ts`), listener pasif, berhenti saat tab tersembunyi. Hanya transform, opacity, filter ringan, dan variabel CSS yang dianimasikan.
-- **`prefers-reduced-motion`**: tanpa patroli, tanpa kursor kustom, kartu ID diam, reveal tanpa gerak. **Tanpa JavaScript** semua konten tetap terlihat.
+- **`prefers-reduced-motion`**: sengaja diabaikan agar laptop dan HP sama-sama beranimasi (blok CSS-nya dinonaktifkan dengan `@media not all`, `reduced()` di `engine.ts` selalu false). Untuk menghidupkan kembali, kembalikan ketiganya. **Tanpa JavaScript** semua konten tetap terlihat.
 - **Font**: Anton (display) dan Instrument Sans, self-hosted lewat `@fontsource`, subset latin; Anton di-preload.
 - **Meta**: JSON-LD (`Person`, `WebSite`, `ProfilePage`), Open Graph + Twitter card, `theme-color` per skema warna (dua meta, disamakan skrip dengan tema pilihan), meta PWA.
 - **Prewarm, tema mulus, kunci zoom/salin**: lihat tiga bagian di bawah.

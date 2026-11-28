@@ -169,7 +169,7 @@ const preload = preloadHero && photos.normal
           ms[i].removeAttribute('media');
         }
         try { seen = !!sessionStorage.getItem('dt-seen'); } catch (e) {}
-        var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        var reduce = false; // Animasi selalu hidup di semua perangkat (laptop sering melaporkan 'kurangi gerak' dari pengaturan OS tanpa disadari pemiliknya).
         // Konten baru disembunyikan (untuk animasi masuk) bila JS hidup. Bila skrip gerak gagal, kelas dicabut: konten tetap terlihat.
         // Dengan loader, motion-ready baru dipasang setelah prewarm, jadi batas pengamannya lebih panjang (9 dtk, di atas pengaman loader 7 dtk).
         if (!reduce && 'IntersectionObserver' in window) {

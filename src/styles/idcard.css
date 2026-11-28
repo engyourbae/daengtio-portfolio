@@ -63,7 +63,7 @@ html.motion .idc.is-in .idc__web path { stroke-dasharray: 1; stroke-dashoffset: 
   .idc__web { width: 18rem; }
 }
 /* Reduced motion: kartu diam */
-@media (prefers-reduced-motion: reduce) {
+@media not all {
   .idc__body { transform: none !important; cursor: default; }
   .idc__holo { display: none; }
 }

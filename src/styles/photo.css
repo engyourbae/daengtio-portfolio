@@ -48,11 +48,11 @@
 .hint--coarse { display: none; }
 @media (hover: none) { .hint--fine { display: none; } .hint--coarse { display: inline; } }
 .photo__hint.is-gone { opacity: 0; transform: translateY(6px); }
-@media (prefers-reduced-motion: no-preference) { .photo__hint svg { animation: hint-spin 6s linear infinite; } }
+@media screen { .photo__hint svg { animation: hint-spin 6s linear infinite; } }
 @keyframes hint-spin { to { transform: rotate(360deg); } }
 
 /* Reduced motion: hanya crossfade, tanpa tilt atau burst */
-@media (prefers-reduced-motion: reduce) {
+@media not all {
   .photo__imgs { transform: none !important; transition: none; }
   .ph, .ph--action, .photo[data-stage='2'] .ph--action, .photo[data-stage='2'] .photo__radar { transform: none !important; transition: opacity 0.3s linear; }
   .photo__burst { display: none; }

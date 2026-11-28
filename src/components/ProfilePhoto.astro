@@ -78,7 +78,7 @@ const label = `${altText}. Gerakkan kursor atau jari di atas foto untuk memindai
     const hint = document.querySelector<HTMLElement>('[data-hint]');
     const live = document.querySelector<HTMLElement>('[data-live]');
     const hasAction = el.dataset.hasAction === 'true';
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const reduce = { matches: false }; // animasi selalu hidup (tidak mengikuti 'kurangi gerak' OS)
     const base = el.dataset.label ?? '';
     const LABELS = [base, 'Pose aksi Spider-Man. Tekan untuk kembali ke foto awal.'];
     const HOLD_MS = 450;

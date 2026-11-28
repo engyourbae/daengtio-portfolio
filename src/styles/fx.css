@@ -47,4 +47,4 @@ html.has-cursor .cursor { display: block; }
 .cursor.is-on[data-state='label'] .cursor__label { opacity: 1; }
 .cursor[data-state='text'] .cursor__ring { background: var(--accent); border-radius: 2px; }
 .cursor.is-press .cursor__ring { border-width: 3px; }
-@media (prefers-reduced-motion: reduce) { .cursor { display: none !important; } }
+@media not all { .cursor { display: none !important; } }
