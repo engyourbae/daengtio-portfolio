@@ -27,7 +27,7 @@ const fullTitle = title ? `${title} | ${profile.name}` : seo.title;
 const site = Astro.site ?? new URL('https://engyourbae.github.io');
 const canonical = new URL(Astro.url.pathname, site).href;
 const homeUrl = new URL(home, site).href;
-const ogImage = new URL(asset('og/og-default.jpg'), site).href + '?v=3'; // ?v= : ganti angkanya bila gambar diganti, agar WhatsApp/Google memuat ulang
+const ogImage = new URL(asset('og/og-default.jpg'), site).href + '?v=4'; // ?v= : ganti angkanya bila gambar diganti, agar WhatsApp/Google memuat ulang
 // Angka diambil dari data (stats = jumlah project dan game di site.ts), bukan ditulis tangan.
 const ogAlt = `Kartu portofolio ${profile.name}: mahasiswa Manajemen Bisnis Syariah di Pontianak, ${stats[0].value} project, ${stats[1].value} game. Foto formal dengan cincin merah dan jaring laba-laba bertema Spider-Man.`;
 const sameAs = [profile.github, profile.instagram, profile.tiktok];
