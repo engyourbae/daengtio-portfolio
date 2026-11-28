@@ -87,7 +87,8 @@ const photo = (stem: string, width: number, height: number) => {
   const src = findAsset(stem);
   return src ? { src, width, height } : null;
 };
-export interface Fit { left: number; top: number; width: number }
+/** rot = putar searah jarum jam (derajat) dengan poros di pojok kiri atas lapisan; hasil pencocokan wajah/rambut terhadap foto dasar. */
+export interface Fit { left: number; top: number; width: number; rot?: number }
 const layer = (stem: string, width: number, height: number, fit: Fit) => {
   const p = photo(stem, width, height);
   return p ? { ...p, fit } : null;
@@ -96,8 +97,8 @@ export const photos = {
   formal: photo('profile/profile-formal', 896, 1196),
   normal: photo('profile/profile-normal', 896, 1196),
   radar: {
-    red: layer('profile/profile-hero-red', 900, 1203, { left: 0.076, top: 0.816, width: 99.741 }),
-    black: layer('profile/profile-main', 800, 1069, { left: -0.088, top: 0.435, width: 100.305 }),
+    red: layer('profile/profile-hero-red', 900, 1203, { left: 0.982, top: 0.081, width: 99.038, rot: 0.445 }),
+    black: layer('profile/profile-main', 800, 1069, { left: 1.113, top: 0.232, width: 99.011, rot: 0.492 }),
   },
   action: {
     red: photo('profile/profile-action', 1000, 1094),
