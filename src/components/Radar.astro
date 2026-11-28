@@ -74,7 +74,7 @@ const layers = [
           decoding="async"
           loading={priority ? 'eager' : 'lazy'}
           draggable="false"
-          style={`left:${l.fit.left}%;top:${l.fit.top}%;width:${l.fit.width}%`}
+          style={`left:${l.fit.left}%;top:${l.fit.top}%;width:${l.fit.width}%${l.fit.rot ? `;transform:rotate(${l.fit.rot}deg);transform-origin:0 0` : ''}`}
         />
       ))}
     </span>
