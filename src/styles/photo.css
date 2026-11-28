@@ -8,8 +8,8 @@
 .photo:focus-visible { outline-offset: 6px; }
 .photo__imgs { position: absolute; inset: 0; display: block; transform-style: preserve-3d; transform: rotateX(var(--rx)) rotateY(var(--ry)); transition: transform 0.25s ease-out; }
 
-/* Radar: bingkai formal (896:1196) rata bawah. Bagian atasnya transparan, boleh melebihi panggung. */
-.photo__radar { position: absolute; left: 0; bottom: 0; width: 100%; transition: opacity 0.5s ease, transform 0.7s var(--ease); }
+/* Radar: bingkai formal (896:1196) rata bawah. Selektor .photo .photo__radar (bukan .photo__radar saja) agar tidak ditimpa `.radar { position: relative }` di radar.css, penyebab foto turun melewati garis.  Bagian atasnya transparan, boleh melebihi panggung. */
+.photo .photo__radar { position: absolute; left: 0; bottom: 0; width: 100%; transition: opacity 0.5s ease, transform 0.7s var(--ease); }
 .photo[data-stage='2'] .photo__radar { opacity: 0; transform: scale(1.03) translateX(-3%); }
 
 /* Pose aksi (klik / tap-tahan) */
