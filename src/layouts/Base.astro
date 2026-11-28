@@ -27,8 +27,8 @@ const fullTitle = title ? `${title} | ${profile.name}` : seo.title;
 const site = Astro.site ?? new URL('https://engyourbae.github.io');
 const canonical = new URL(Astro.url.pathname, site).href;
 const homeUrl = new URL(home, site).href;
-const ogImage = new URL(asset('og/og-default.jpg'), site).href;
-const ogAlt = `${profile.name}, ${profile.role}. ${seo.tagline}`;
+const ogImage = new URL(asset('og/og-default.jpg'), site).href + '?v=3'; // ?v= : ganti angkanya bila gambar diganti, agar WhatsApp/Google memuat ulang
+const ogAlt = `Kartu portofolio ${profile.name}: mahasiswa Manajemen Bisnis Syariah di Pontianak, 7 project, 2 game. Foto formal dengan lensa radar bertema Spider-Man.`;
 const sameAs = [profile.github, profile.instagram, profile.tiktok];
 
 // Satu graf JSON-LD: orang, situs, dan halaman profil (formal, terbaca mesin pencari).
