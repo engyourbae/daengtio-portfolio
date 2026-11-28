@@ -42,7 +42,10 @@ html.has-cursor .cursor { display: block; }
 .cursor.is-on .cursor__ring { opacity: 0.9; }
 .cursor.is-on .cursor__dot { opacity: 1; }
 .cursor[data-state='link'] .cursor__ring { background: color-mix(in srgb, var(--accent) 14%, transparent); }
-.cursor[data-state='label'] .cursor__ring { background: var(--accent); border-color: var(--accent); opacity: 1; }
+.cursor[data-state='label'] .cursor__ring { background: color-mix(in srgb, var(--accent) 22%, transparent); -webkit-backdrop-filter: blur(1.5px); backdrop-filter: blur(1.5px); border-color: var(--accent); opacity: 1; }
+:root[data-theme='gelap'] .cursor[data-state='label'] .cursor__ring { background: color-mix(in srgb, var(--accent) 16%, transparent); }
+.cursor__label { text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55); }
+:root[data-theme='gelap'] .cursor__label { color: var(--ink); }
 .cursor[data-state='label'] .cursor__dot { opacity: 0; }
 .cursor.is-on[data-state='label'] .cursor__label { opacity: 1; }
 .cursor[data-state='text'] .cursor__ring { background: var(--accent); border-radius: 2px; }
