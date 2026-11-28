@@ -27,7 +27,8 @@
 }
 .radar__hud { color: var(--ring); }
 .radar__hud svg { display: block; width: 100%; height: 100%; overflow: visible; }
-.radar__sweep, .radar__ping { transform-box: view-box; transform-origin: 50% 50%; }
+/* fill-box + lingkaran tak terlihat berpusat di (0,0): poros putar tepat di tengah di semua browser (view-box dengan viewBox negatif salah di sebagian Chrome Android) */
+.radar__sweep, .radar__ping { transform-box: fill-box; transform-origin: 50% 50%; }
 .radar__ping { opacity: 0; }
 
 @media (prefers-reduced-motion: no-preference) {
