@@ -68,9 +68,9 @@ export const seo = {
     'Daeng Tio Waldi', 'web developer', 'game developer', 'freelance', 'portofolio', 'Pontianak',
     'Manajemen Bisnis Syariah', 'IAIN Pontianak', 'PWA', 'React', 'TypeScript', 'Astro',
   ],
-  title: 'Daeng Tio Waldi | Web & Game Developer',
+  title: 'Portfolio Daeng Tio Waldi',
   description:
-    'Portofolio Daeng Tio Waldi, mahasiswa Manajemen Bisnis Syariah dan freelance web & game developer di Pontianak. Terbuka untuk pekerjaan freelance.',
+    'Portofolio Daeng Tio Waldi, mahasiswa Manajemen Bisnis Syariah di Pontianak. Karya, keahlian, dan cara menghubungi saya.',
 };
 
 /**
