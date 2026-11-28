@@ -2,7 +2,7 @@
  * Animasi scroll. Semuanya memakai engine bersama (satu rAF) dan aman bila JS gagal:
  * konten hanya disembunyikan oleh CSS bila <html class="motion"> (dipasang skrip di <head>, dicabut bila skrip ini gagal).
  */
-import { S, clamp, damp, onFrame, onMeasure, reduced, tween } from './engine';
+import { S, clamp, damp, lite, onFrame, onMeasure, reduced, tween } from './engine';
 
 const root = document.documentElement;
 
@@ -20,7 +20,9 @@ export function initReveal(): void {
     root.classList.add('motion-ready');
     return;
   }
-  root.classList.add('motion', 'motion-ready');
+  root.classList.add('motion');
+  // motion-ready dipasang loader setelah prewarm selesai; tanpa loader (kunjungan ulang) langsung sekarang.
+  if (!root.classList.contains('loading')) root.classList.add('motion-ready');
 
   const pending = new Set<HTMLElement>();
   const settleT = new Map<HTMLElement, number>();
@@ -69,6 +71,7 @@ export function initReveal(): void {
     const mo = new MutationObserver(() => {
       if (root.classList.contains('loading')) return;
       mo.disconnect();
+      root.classList.add('motion-ready');
       pending.forEach((el) => show(el));
       pending.clear();
       items.forEach((el) => { enter.unobserve(el); enter.observe(el); });
@@ -118,7 +121,9 @@ export function initParallax(): void {
   onFrame((dt) => {
     const vc = S.y + S.vh / 2;
     const f = damp(7, dt);
+    const light = lite(); // perangkat berat: lapisan parallax paling halus (k kecil) dilewati
     for (const p of list) {
+      if (light && p.k < 0.11) continue;
       const d = p.mid - vc;
       if (Math.abs(d) > S.vh * 1.3) continue;
       const target = clamp(-d * p.k, -140, 140);

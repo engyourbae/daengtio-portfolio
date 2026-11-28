@@ -7,5 +7,7 @@
 <script>
   // Hover + sentuh untuk semua elemen, tombol magnetik, tilt, dan kursor. Lihat src/lib/fx.ts.
   import { initFx } from '../lib/fx';
+  import { initLock } from '../lib/lock';
+  initLock(); // kunci zoom (cubit iOS) dan salin teks; dipasang lebih dulu, terpisah dari initFx
   initFx();
 </script>

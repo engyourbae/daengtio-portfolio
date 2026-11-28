@@ -15,12 +15,19 @@ import WebArt from './WebArt.astro';
 </div>
 
 <script>
+  // Loader = layar prewarm (src/lib/prewarm.ts). Persen berasal dari pekerjaan yang benar-benar selesai
+  // (font, decode gambar, lapisan GPU, ukur, animasi kering, frame pertama), bukan angka palsu.
+  import { damp, measureNow, onFrame } from '../lib/engine';
+  import { idle, prewarm, release } from '../lib/prewarm';
+
   const root = document.documentElement;
   const loader = document.querySelector<HTMLElement>('[data-loader]');
   const count = document.querySelector<HTMLElement>('[data-count]');
   const bar = document.querySelector<HTMLElement>('[data-bar]');
 
   const finish = () => {
+    if (!root.dataset.measured) measureNow(); // pengaman: jangan lanjut tanpa ukuran
+    root.classList.add('motion-ready');
     root.classList.remove('loading');
     root.classList.add('ready');
     try { sessionStorage.setItem('dt-seen', '1'); } catch (e) { /* diblokir */ }
@@ -29,38 +36,35 @@ import WebArt from './WebArt.astro';
   if (!loader || !root.classList.contains('loading') || !count || !bar) {
     finish();
   } else {
-    const MIN = 1500; // ms, supaya hitungan terasa utuh
+    const MIN = 900;   // ms, supaya hitungan terasa utuh di perangkat cepat (total biasanya ~1,3 sampai 2 detik)
+    const HARD = 6500; // ms, pengaman sebelum pengaman 7 detik di <head>
     const t0 = performance.now();
-    let loaded = false;
-    let doneAt = 0;
-    const heroImgs = Array.from(document.querySelectorAll<HTMLImageElement>('[data-photo] img'));
-    const imgReady = Promise.all(
-      heroImgs.map((i) => (i.complete ? Promise.resolve() : new Promise<void>((r) => { i.addEventListener('load', () => r(), { once: true }); i.addEventListener('error', () => r(), { once: true }); }))),
-    );
-    const winReady = document.readyState === 'complete' ? Promise.resolve() : new Promise<void>((r) => addEventListener('load', () => r(), { once: true }));
-    Promise.all([imgReady, winReady]).then(() => { loaded = true; });
-
+    let real = 0;
+    let ready = false;
     let shown = 0;
-    const frame = (now: number) => {
-      const t = now - t0;
-      const timeP = Math.min(1, t / MIN);
-      const eased = 1 - Math.pow(1 - timeP, 3);
-      // Tertahan di 92% sampai aset benar-benar siap.
-      const target = loaded ? eased * 100 : Math.min(eased * 100, 92);
-      shown += (target - shown) * 0.2;
-      const v = Math.min(100, Math.round(shown));
+    let doneAt = 0;
+
+    const pipeline = prewarm((d, t) => { real = t > 0 ? d / t : 0; }).catch((e) => console.error('[prewarm]', e));
+    const guard = new Promise<void>((r) => window.setTimeout(r, HARD));
+    void Promise.race([pipeline, guard]).then(() => { ready = true; });
+
+    const off = onFrame((dt) => {
+      const now = performance.now();
+      const target = ready ? 100 : Math.min(99, real * 100);
+      shown += (target - shown) * damp(14, dt);
+      if (ready && shown > 99.5) shown = 100;
+      const v = ready && shown >= 100 ? 100 : Math.min(99, Math.round(shown));
       count.textContent = String(v);
       bar.style.transform = `scaleX(${(shown / 100).toFixed(3)})`;
-      if (loaded && v >= 100 && !doneAt) doneAt = now;
+      if (v >= 100 && !doneAt && now - t0 >= MIN) doneAt = now;
       if (doneAt && now - doneAt > 260) {
+        off();
         // Hero mulai beranimasi di bawah tirai yang menyingkap, lalu loader dilepas dari DOM.
         loader.classList.add('is-leaving');
         finish();
-        setTimeout(() => loader.remove(), 1000);
-        return;
+        window.setTimeout(() => loader.remove(), 1000);
+        window.setTimeout(() => idle(release), 1800); // lapisan sementara dilepas saat browser senggang
       }
-      requestAnimationFrame(frame);
-    };
-    requestAnimationFrame(frame);
+    });
   }
 </script>

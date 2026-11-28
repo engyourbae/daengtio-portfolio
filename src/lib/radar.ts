@@ -8,7 +8,7 @@
  * Idle: lensa berpatroli pelan di sekitar wajah. Pointer / jari datang: lensa menyambut (lerp), ping, radius membesar.
  * Reduced motion: lensa statis di wajah, tanpa sapuan, tanpa napas, tanpa pelacakan.
  */
-import { S, clamp, damp, onFrame, reduced } from './engine';
+import { S, clamp, damp, onFrame, onMeasure, reduced } from './engine';
 
 const num = (v: string | undefined, d: number): number => { const n = parseFloat(v ?? ''); return Number.isFinite(n) ? n : d; };
 
@@ -60,6 +60,7 @@ export function initRadar(host: HTMLElement): void {
 
   measure();
   new ResizeObserver(measure).observe(host);
+  onMeasure(measure); // ikut pengukuran tunggal saat prewarm
   host.classList.add('is-on');
   if (still) { host.classList.add('is-static'); return; }
 

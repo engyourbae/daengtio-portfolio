@@ -15,25 +15,48 @@ const themes = [
 </div>
 
 <script>
+  // Ganti tema mulus: tidak ada elemen yang dipasang/dibuang, tidak ada reset animasi (reveal, lensa radar, kartu ID).
+  //  1. View Transitions API bila ada: crossfade seluruh halaman (halaman lama tetap, halaman baru memudar masuk, tanpa dip putih).
+  //  2. Fallback: kelas sementara html.theme-swap (transisi warna 0,35 dtk) yang dicabut setelah 400 ms.
+  //  3. prefers-reduced-motion: ganti langsung.
   const COLORS: Record<string, string> = { terang: '#F7F2EC', gelap: '#06070A' };
   const root = document.documentElement;
   const buttons = document.querySelectorAll<HTMLButtonElement>('[data-theme-set]');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  let want = root.dataset.theme ?? 'terang'; // diperbarui sinkron, supaya klik beruntun tidak salah baca
+  let swapT = 0;
 
   const sync = () => buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.themeSet === root.dataset.theme)));
   sync();
 
+  const apply = () => {
+    root.dataset.theme = want;
+    try { localStorage.setItem('dt-theme', want); } catch (e) { /* penyimpanan diblokir */ }
+    document.querySelectorAll('meta[name="theme-color"]').forEach((m) => m.setAttribute('content', COLORS[want]));
+    sync();
+  };
+
   buttons.forEach((b) =>
     b.addEventListener('click', () => {
       const t = b.dataset.themeSet as string;
-      if (t === root.dataset.theme) return;
-      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        root.classList.add('theme-anim');
-        window.setTimeout(() => root.classList.remove('theme-anim'), 650);
+      if (t === want) return;
+      want = t;
+      const vt = (document as Document & { startViewTransition?: (cb: () => void) => { ready: Promise<unknown>; finished: Promise<unknown>; updateCallbackDone: Promise<unknown> } }).startViewTransition;
+      if (reduce.matches) {
+        apply();
+      } else if (vt && !root.classList.contains('perf-lite')) {
+        const tr = vt.call(document, apply);
+        // Transisi yang dilewati klik berikutnya menolak promise-nya: itu normal, bukan galat.
+        tr.ready.catch(() => {});
+        tr.finished.catch(() => {});
+        tr.updateCallbackDone.catch(() => {});
+      } else {
+        root.classList.add('theme-swap');
+        apply();
+        window.clearTimeout(swapT);
+        swapT = window.setTimeout(() => root.classList.remove('theme-swap'), 400);
       }
-      root.dataset.theme = t;
-      try { localStorage.setItem('dt-theme', t); } catch (e) { /* penyimpanan diblokir */ }
-      document.querySelector('meta[name="theme-color"]')?.setAttribute('content', COLORS[t]);
-      sync();
     }),
   );
 </script>

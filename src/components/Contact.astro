@@ -75,7 +75,7 @@ const n = certificates.length > 0 ? '05' : '04';
     copyBtn?.classList.remove('is-copied');
     void copyBtn?.offsetWidth; // restart animasi riak
     if (ok) copyBtn?.classList.add('is-copied');
-    const msg = ok ? 'Email tersalin' : 'Gagal menyalin. Salin manual dari teks email.';
+    const msg = ok ? 'Email tersalin' : 'Gagal menyalin. Coba lagi, atau pakai kotak Gmail di atas.';
     if (live) live.textContent = msg;
     if (tip) tip.textContent = msg;
     clearTimeout(timer);

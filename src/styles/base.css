@@ -23,8 +23,16 @@ body {
   overflow-x: clip;
 }
 
-html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *::after {
-  transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease, fill 0.4s ease !important;
+/* Ganti tema (fallback tanpa View Transitions): transisi hanya selama html.theme-swap, dipasang ThemeSwitch 400 ms lalu dicabut. Tidak pernah menyala permanen. */
+html.theme-swap, html.theme-swap *, html.theme-swap *::before, html.theme-swap *::after {
+  transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease, fill 0.35s ease, stroke 0.35s ease, opacity 0.35s ease !important;
+}
+/* View Transitions: halaman lama diam di bawah, halaman baru memudar masuk (tanpa dip ke putih). */
+::view-transition-old(root) { animation: none; mix-blend-mode: normal; }
+::view-transition-new(root) { animation: vt-fade 0.35s ease both; mix-blend-mode: normal; }
+@keyframes vt-fade { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
 }
 
 img, svg { display: block; max-width: 100%; }
@@ -37,6 +45,14 @@ a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: 0.2em
 a:hover { text-decoration-thickness: 2px; }
 
 ::selection { background: var(--accent); color: var(--on-accent); }
+
+/* Kunci zoom dan salin teks. Zoom: touch-action pada akar menolak cubit dan ketuk-ganda (viewport di Base.astro + src/lib/lock.ts untuk iOS).
+   Teks: tidak bisa dipilih, tekan lama tidak memunculkan menu. Kolom form tetap bisa diketik dan dipilih. */
+html, body { touch-action: pan-x pan-y; }
+html { -webkit-touch-callout: none; }
+body, body * { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+body input, body textarea, body select, body [contenteditable='true'] { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }
+img, svg, canvas { -webkit-user-drag: none; }
 
 /* Halaman terkunci saat loader tampil */
 html.loading { overflow: hidden; }

@@ -13,7 +13,32 @@ Portofolio pribadi Daeng Tio Waldi. Astro 5 + TypeScript, situs statis, deploy k
 - **Satu loop `requestAnimationFrame`** (`src/lib/engine.ts`), listener pasif, berhenti saat tab tersembunyi. Hanya transform, opacity, filter ringan, dan variabel CSS yang dianimasikan.
 - **`prefers-reduced-motion`**: tanpa patroli, tanpa kursor kustom, kartu ID diam, reveal tanpa gerak. **Tanpa JavaScript** semua konten tetap terlihat.
 - **Font**: Anton (display) dan Instrument Sans, self-hosted lewat `@fontsource`, subset latin; Anton di-preload.
-- **Meta**: JSON-LD (`Person`, `WebSite`, `ProfilePage`), Open Graph + Twitter card, `theme-color` per tema, meta PWA.
+- **Meta**: JSON-LD (`Person`, `WebSite`, `ProfilePage`), Open Graph + Twitter card, `theme-color` per skema warna (dua meta, disamakan skrip dengan tema pilihan), meta PWA.
+- **Prewarm, tema mulus, kunci zoom/salin**: lihat tiga bagian di bawah.
+
+## Prewarm dan performa
+
+Layar loader (`Loader.astro` + `src/lib/prewarm.ts`) mengerjakan semua hal berat sekali di awal, supaya scroll pertama, animasi masuk pertama, dan ganti tema ringan. Urutannya:
+
+1. **Aset**: tunggu font, lalu `img.decode()` untuk gambar kritis (hero: foto, siluet merah/hitam, pose aksi; kartu ID; ikon project). Persen loader = jumlah pekerjaan yang benar-benar selesai / total (font + tiap gambar + 4 tahap di bawah), bukan angka palsu. Tampilan angka hanya dihaluskan (lerp), tidak pernah mendahului kemajuan asli.
+2. **Lapisan GPU**: `will-change: transform, opacity` dipasang sementara pada lensa radar, kartu ID, tile kontak, kartu project, glow latar, kanvas debu, dan marquee. Isi halaman dirender penuh 2 frame di bawah tirai loader (`html.prewarming`), lalu `will-change` inline dilepas (`release()`, saat browser senggang). Yang memang selalu bergerak tetap memakai `will-change` dari stylesheet.
+3. **Ukur sekali**: `measureNow()` memanggil semua `measure()` (radar, kartu ID, marquee, baris SplitText, parallax, latar). Sesudahnya pengukuran ulang hanya saat `resize` (didebounce 120 ms); pemicu `load` / `fonts.ready` dimatikan selama loader tampil.
+4. **Animasi kering** (±300 ms, tak terlihat): probe hampir transparan menjalankan keyframe `rv-in` dan sapuan radar, dan tema dibalik-balik dalam satu tugas tanpa paint, supaya gaya dan raster kedua tema siap.
+5. **Frame pertama + adaptif**: kanvas debu sudah tergambar di loader. Rata-rata dt rAF 20 frame (2 frame pemanasan dibuang) > 24 ms memasang `html.perf-lite`: partikel dikurangi, sorot kursor dan jaring kedua dimatikan, blur reveal dan bayangan foto dimatikan, lapisan parallax paling halus dilewati. Konten tidak pernah dihilangkan. Jumlah partikel awal juga menyesuaikan `devicePixelRatio` dan `hardwareConcurrency` / `deviceMemory`.
+
+Loader selesai setelah tahap 1 sampai 5 (batas 6,5 dtk; pengaman 7 dtk di `<head>` tetap ada). Baru setelah itu `html.motion-ready` dipasang. Satu loop rAF bersama (`engine.ts`), listener pasif, berhenti saat tab tersembunyi; radar, kartu ID, marquee, dan gelombang teks berhenti menghitung saat jauh dari layar (IntersectionObserver). Catatan: `transform` identitas sengaja tidak dipaksakan pada elemen pemanasan karena akan menimpa transform inline milik radar / kartu ID / marquee; `will-change` + satu kali baca layout sudah cukup untuk membuat lapisan.
+
+**Ganti tema**: `View Transitions API` bila ada (halaman baru memudar masuk di atas halaman lama, tanpa dip ke putih); bila tidak ada atau `perf-lite`, kelas sementara `html.theme-swap` (transisi warna 0,35 dtk, dicabut setelah 400 ms). Reduced motion: ganti langsung. Animasi reveal, posisi lensa radar, dan ayunan kartu ID tidak di-reset. Kedua varian visual (siluet merah/hitam, glow, jaring, debu) selalu ada di DOM dan hanya berganti opacity lewat token.
+
+## Kunci zoom dan salin teks
+
+- **Zoom**: `maximum-scale=1, user-scalable=no` di viewport, `touch-action: pan-x pan-y` pada `html`/`body`, dan `gesturestart/change/end` dibatalkan di `src/lib/lock.ts` (iOS Safari mengabaikan `user-scalable=no`). Zoom lewat menu browser desktop atau Ctrl+scroll tidak dikunci.
+- **Teks**: `user-select: none` + `-webkit-touch-callout: none`, serta `selectstart`, `contextmenu` (klik kanan / tekan lama), `copy`, `cut`, `dragstart` dibatalkan. Kolom form tetap bisa diketik dan dipilih. Tombol "salin email" tetap jalan.
+- Catatan: ini hanya pencegah kebiasaan. Teks tetap bisa diambil lewat lihat-sumber, mode baca, atau tangkapan layar. Mengunci zoom menyulitkan pembaca berpenglihatan rendah (WCAG 1.4.4). Untuk membatalkan: hapus `initLock()` di `Interact.astro`, aturan "Kunci zoom dan salin teks" di `base.css`, dan `maximum-scale=1, user-scalable=no` di `Base.astro`.
+
+## Mengganti gambar OG (naikkan ?v=)
+
+Gambar OG ada di `public/assets/og/og-default.jpg` (1200x630 JPEG, di bawah 200 KB; saat ini sekitar 105 KB). Isinya foto formal (cutout `profile-normal.webp`) dan tiga kotak angka dari data nyata `site.ts` (project, game, angkatan + kampus); prestasi / sertifikat baru ditampilkan bila `certificates` terisi. Setelah mengganti gambar, **naikkan angka `?v=` di `src/layouts/Base.astro`** (`new URL(asset('og/og-default.jpg'), site).href + '?v=3'` menjadi `?v=4`, dst.) agar WhatsApp / Google memuat ulang pratinjau. Teks alt OG memakai jumlah project dan game dari `stats` di `site.ts`.
 
 ## Perintah
 
@@ -89,7 +114,7 @@ Isi array `certificates` di `src/data/site.ts`; section muncul otomatis bila ada
 
 ## Checklist sebelum publish
 
-- [ ] Hapus file lama yang sudah tidak dipakai: `src/styles/global.css` dan `public/assets/og/og-default.png`
+- [ ] Pastikan tidak ada file lama tersisa: `src/styles/global.css` dan `public/assets/og/og-default.png` (di zip terakhir sudah tidak ada)
 - [ ] `npm install` lalu commit `package-lock.json`
 - [ ] Ganti foto dan ikon project
 - [ ] Cek deskripsi bertanda `TODO` di `src/data/site.ts` (Bimtrack, "Berbasis di")
@@ -100,4 +125,8 @@ Isi array `certificates` di `src/data/site.ts`; section muncul otomatis bila ada
 
 ## Catatan pengujian (jujur)
 
-Perubahan Fase 3 **belum pernah dibangun dengan `npm run build` Astro** di lingkungan pengerjaan (tanpa akses npm). Pengujian memakai harness statis buatan sendiri di Chromium (Playwright): render 360 dan 1280 px di kedua tema tanpa error JS dan tanpa overflow horizontal, serta event pointer / sentuh sintetis untuk radar, kartu ID, `.is-touch`, reveal dua arah, counter, marquee, reduced-motion, dan tampilan tanpa JS. **Tidak diuji** di handphone sungguhan, Safari / Firefox, maupun dengan screen reader, dan Lighthouse belum dijalankan. Bila `npm run build` menampilkan galat, mulai dari sana.
+Perubahan Fase 3 dan 4 **belum pernah dibangun dengan `npm run build` Astro** di lingkungan pengerjaan (tanpa akses npm). Pengujian memakai harness statis buatan sendiri di Chromium (Playwright): skrip klien dikompilasi dengan `tsc` (strict), markup komponen disalin ke satu halaman HTML, CSS asli dipakai apa adanya (font self-hosted tidak dimuat, jadi font cadangan yang tampil).
+
+Fase 4, diuji lewat harness: render 360 dan 1280 px di kedua tema tanpa galat konsol dan tanpa overflow horizontal; loader dengan persen dari kemajuan nyata selesai sekitar 1,4 sampai 1,8 dtk di mesin uji, `motion-ready` dipasang sesudahnya, `will-change` sementara terlepas; ujung jarum radar tetap di dalam cincin terluar (3 sampel, 4 lensa); ganti tema 10x beruntun (View Transitions, fallback `theme-swap`, dan reduced motion) tanpa kedip putih, tanpa layout shift (CLS 0), tanpa galat, dengan reveal, lensa radar, dan ayunan kartu ID tetap hidup; `perf-lite` aktif saat CPU di-throttle 6x dan 12x dan konten tetap utuh; kunci salin (event `contextmenu`, `selectstart`, `copy`, `cut`, `dragstart`, pilih teks dengan mouse dan Ctrl+A, kontrol tanpa kunci terbukti bisa memilih teks), kolom form tetap bisa diketik, tombol salin email (jalur `navigator.clipboard` dan cadangan `execCommand`) tetap bekerja; tanpa JS dan reduced motion semua konten tetap terlihat.
+
+**Tidak diuji**: build Astro; handphone sungguhan (tekan-lama asli, cubit-zoom, ketuk-ganda; Chromium headless tidak bisa mencubit-zoom bahkan di halaman biasa, jadi kunci zoom hanya diverifikasi secara struktur: meta viewport, `touch-action`, penangan gesture); Safari / Firefox / iOS; kehalusan scroll di perangkat nyata (hanya diuji tidak ada galat dan perf-lite aktif saat dibebani); Lighthouse; screen reader. Bila `npm run build` menampilkan galat, mulai dari sana.

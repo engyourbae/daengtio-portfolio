@@ -7,7 +7,7 @@
  * - Cahaya lembut mengikuti kursor / jari (di-lerp).
  * Hanya transform dan opacity yang ditulis tiap frame; tanpa layout, tanpa repaint besar.
  */
-import { S, clamp, damp, onFrame, onMeasure, reduced } from './engine';
+import { S, clamp, damp, lite, onFrame, onMeasure, reduced, weakDevice } from './engine';
 
 type P = { x: number; y: number; r: number; vx: number; vy: number; a: number; ph: number; z: number };
 
@@ -54,12 +54,15 @@ export function initBackdrop(): void {
   });
   function resizeCanvas(): void {
     if (!canvas || !ctx) return;
-    dpr = Math.min(window.devicePixelRatio || 1, S.vw < 640 ? 1.5 : 2);
+    const light = lite() || weakDevice;
+    dpr = Math.min(window.devicePixelRatio || 1, light ? 1.25 : S.vw < 640 ? 1.5 : 2);
     w = S.vw; h = S.vh;
     canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     const small = w < 640;
-    const n = Math.round(Math.min(small ? 34 : 78, (w * h) / (small ? 17000 : 21000))); // lebih sedikit di layar kecil
+    // lebih sedikit di layar kecil, perangkat lemah (inti <= 4 / RAM <= 2 GB) dan mode perf-lite
+    const q = lite() ? 0.4 : weakDevice ? 0.65 : 1;
+    const n = Math.round(Math.min(small ? 34 : 78, (w * h) / (small ? 17000 : 21000)) * q);
     parts = Array.from({ length: n }, make);
   }
 

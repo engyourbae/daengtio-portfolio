@@ -159,22 +159,47 @@ document.documentElement.addEventListener('pointerleave', () => { S.active = fal
 
 /* ---------- Ukuran ---------- */
 const measureSubs = new Set<() => void>();
-/** Dipanggil saat ukuran berubah (resize, font siap, halaman selesai dimuat). Sudah di-debounce. */
+/** Dipanggil saat ukuran berubah (resize) dan satu kali saat loader memanaskan halaman. Sudah di-debounce untuk resize. */
 export function onMeasure(fn: () => void): void {
   measureSubs.add(fn);
 }
 let mt = 0;
+const runMeasure = (): void => {
+  window.clearTimeout(mt);
+  S.vw = window.innerWidth;
+  S.vh = window.innerHeight;
+  measureSubs.forEach((f) => f());
+};
+/** Ukur semua sekarang juga, tanpa debounce (dipakai loader pada tahap prewarm, lalu root.dataset.measured = '1'). */
+export const measureNow = (): void => {
+  root.dataset.measured = '1';
+  runMeasure();
+};
 const fireMeasure = (): void => {
   window.clearTimeout(mt);
-  mt = window.setTimeout(() => {
-    S.vw = window.innerWidth;
-    S.vh = window.innerHeight;
-    measureSubs.forEach((f) => f());
-  }, 120);
+  mt = window.setTimeout(runMeasure, 120);
 };
 window.addEventListener('resize', fireMeasure, { passive: true });
-window.addEventListener('load', fireMeasure, { once: true });
-void document.fonts?.ready.then(fireMeasure);
+// Saat loader tampil, pengukuran awal dilakukan loader (prewarm) satu kali; jangan dobel lewat load / fonts.
+const settle = (): void => { if (!root.classList.contains('loading')) fireMeasure(); };
+window.addEventListener('load', settle, { once: true });
+void document.fonts?.ready.then(settle);
+// Pengaman: loader dilepas pengaman 7 detik tanpa sempat mengukur -> ukur sekali.
+if (root.classList.contains('loading')) {
+  const mo = new MutationObserver(() => {
+    if (root.classList.contains('loading')) return;
+    mo.disconnect();
+    if (!root.dataset.measured) fireMeasure();
+  });
+  mo.observe(root, { attributes: true, attributeFilter: ['class'] });
+}
+
+/* ---------- Beban perangkat ---------- */
+const nav = navigator as Navigator & { deviceMemory?: number };
+/** Perangkat lemah menurut spesifikasi (inti CPU <= 4 atau RAM <= 2 GB). Dipakai untuk jumlah partikel awal. */
+export const weakDevice: boolean = (nav.hardwareConcurrency || 8) <= 4 || (nav.deviceMemory ?? 8) <= 2;
+/** true bila html.perf-lite dipasang loader (rata-rata dt rAF > 24 ms). Kurangi hiasan, bukan konten. */
+export const lite = (): boolean => root.classList.contains('perf-lite');
 
 /* ---------- Reduced motion berubah saat halaman terbuka ---------- */
 mqReduce.addEventListener?.('change', () => {

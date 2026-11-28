@@ -14,7 +14,7 @@ import '../styles/idcard.css';
 import '../styles/backdrop.css';
 import '../styles/fx.css';
 import '../styles/loader.css';
-import { asset, home, profile, seo, geo, photos, skills } from '../data/site';
+import { asset, home, profile, seo, geo, photos, skills, stats } from '../data/site';
 import Backdrop from '../components/Backdrop.astro';
 import Loader from '../components/Loader.astro';
 import Motion from '../components/Motion.astro';
@@ -28,7 +28,8 @@ const site = Astro.site ?? new URL('https://engyourbae.github.io');
 const canonical = new URL(Astro.url.pathname, site).href;
 const homeUrl = new URL(home, site).href;
 const ogImage = new URL(asset('og/og-default.jpg'), site).href + '?v=3'; // ?v= : ganti angkanya bila gambar diganti, agar WhatsApp/Google memuat ulang
-const ogAlt = `Kartu portofolio ${profile.name}: mahasiswa Manajemen Bisnis Syariah di Pontianak, 7 project, 2 game. Foto formal dengan lensa radar bertema Spider-Man.`;
+// Angka diambil dari data (stats = jumlah project dan game di site.ts), bukan ditulis tangan.
+const ogAlt = `Kartu portofolio ${profile.name}: mahasiswa Manajemen Bisnis Syariah di Pontianak, ${stats[0].value} project, ${stats[1].value} game. Foto formal dengan cincin merah dan jaring laba-laba bertema Spider-Man.`;
 const sameAs = [profile.github, profile.instagram, profile.tiktok];
 
 // Satu graf JSON-LD: orang, situs, dan halaman profil (formal, terbaca mesin pencari).
@@ -79,7 +80,8 @@ const preload = preloadHero && photos.normal
 <html lang="id" data-theme="terang">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <!-- Zoom dikunci atas permintaan pemilik situs (cubit / ketuk-ganda). Perlu diketahui: ini menyulitkan pembaca dengan penglihatan rendah. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <meta name="keywords" content={seo.keywords.join(', ')} />
@@ -100,7 +102,9 @@ const preload = preloadHero && photos.normal
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="format-detection" content="telephone=no, email=no, address=no" />
     <meta name="msapplication-TileColor" content="#06070A" />
-    <meta name="theme-color" content="#F7F2EC" />
+    <!-- Dua nilai per skema warna (untuk tanpa JS). Skrip di bawah menyamakan keduanya dengan tema yang dipilih lalu melepas media-nya. -->
+    <meta name="theme-color" content="#F7F2EC" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#06070A" media="(prefers-color-scheme: dark)" />
 
     <!-- Lokasi: Pontianak -->
     <meta name="geo.region" content="ID-KB" />
@@ -159,14 +163,18 @@ const preload = preloadHero && photos.normal
           t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'gelap' : 'terang';
         }
         d.setAttribute('data-theme', t);
-        var m = document.querySelector('meta[name="theme-color"]');
-        if (m) m.setAttribute('content', t === 'gelap' ? '#06070A' : '#F7F2EC');
+        var ms = document.querySelectorAll('meta[name="theme-color"]');
+        for (var i = 0; i < ms.length; i++) {
+          ms[i].setAttribute('content', t === 'gelap' ? '#06070A' : '#F7F2EC');
+          ms[i].removeAttribute('media');
+        }
         try { seen = !!sessionStorage.getItem('dt-seen'); } catch (e) {}
         var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         // Konten baru disembunyikan (untuk animasi masuk) bila JS hidup. Bila skrip gerak gagal, kelas dicabut: konten tetap terlihat.
+        // Dengan loader, motion-ready baru dipasang setelah prewarm, jadi batas pengamannya lebih panjang (9 dtk, di atas pengaman loader 7 dtk).
         if (!reduce && 'IntersectionObserver' in window) {
           d.classList.add('motion');
-          setTimeout(function () { if (!d.classList.contains('motion-ready')) d.classList.remove('motion'); }, 4000);
+          setTimeout(function () { if (!d.classList.contains('motion-ready')) d.classList.remove('motion'); }, seen ? 4000 : 9000);
         }
         if (!seen && !reduce) {
           d.classList.add('loading');

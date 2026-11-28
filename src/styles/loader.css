@@ -16,3 +16,20 @@ html.loading .loader, .loader.is-leaving { display: grid; }
 @keyframes loader-out { to { clip-path: inset(0 0 100% 0); } }
 @keyframes core-out { to { opacity: 0; transform: translateY(-1.5rem) scale(0.96); } }
 @keyframes web-draw { to { stroke-dashoffset: 0; } }
+
+/* ---------- Prewarm (src/lib/prewarm.ts) ---------- */
+/* Selama pemanasan (2 frame), isi halaman dirender penuh di bawah tirai loader supaya raster + lapisan GPU siap sebelum reveal pertama. */
+html.prewarming [data-reveal], html.prewarming .st .st-c { opacity: 1 !important; transform: none !important; translate: none !important; filter: none !important; animation: none !important; transition: none !important; }
+/* Probe putaran kering: hampir transparan, di belakang loader, dibuang setelah ±300 ms */
+.pw-probe { position: fixed; left: 0; top: 0; width: 48px; height: 48px; opacity: 0.02; pointer-events: none; z-index: -1; overflow: hidden; contain: layout paint; }
+.pw-probe > i { display: block; width: 100%; height: 100%; background: var(--accent); }
+.pw-probe .radar { position: absolute; inset: 0; color: var(--ring); }
+
+/* ---------- Mode ringan: dipasang prewarm bila rata-rata dt rAF > 24 ms. Hiasan berkurang, konten tetap utuh. ---------- */
+html.perf-lite .backdrop__web--b, html.perf-lite .backdrop__spot { display: none; }
+html.perf-lite .backdrop__web--a { animation: none; }
+html.perf-lite [data-reveal='blur'] { --rv-f: none; }
+html.perf-lite.motion .st:not(.is-in) .st-c { filter: none; }
+html.perf-lite .radar__base, html.perf-lite .radar.is-active .radar__base { filter: brightness(0.94); transition: none; }
+html.perf-lite .radar.is-active .radar__base { filter: brightness(0.8); }
+html.perf-lite .ph { filter: none; }
