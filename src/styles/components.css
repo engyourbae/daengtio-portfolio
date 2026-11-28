@@ -13,11 +13,11 @@ section[id] { scroll-margin-top: calc(var(--header-h) + 1rem); }
   transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease), transform var(--dur) var(--ease), translate 0.25s var(--ease);
 }
 .btn svg { transition: transform var(--dur) var(--ease); }
-.btn:hover svg { transform: translate(2px, -2px); }
+.btn:hover svg, .btn.is-touch svg, .btn:focus-visible svg { transform: translate(2px, -2px); }
 .btn:active { transform: scale(0.97); }
 .btn--accent { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
-.btn--accent:hover { transform: translateY(-2px); }
-.btn--line:hover { background: var(--ink); color: var(--bg); }
+.btn--accent:hover, .btn--accent.is-touch, .btn--accent:focus-visible { transform: translateY(-2px); }
+.btn--line:hover, .btn--line.is-touch, .btn--line:focus-visible { background: var(--ink); color: var(--bg); }
 .btn:disabled { opacity: 0.6; cursor: progress; }
 
 /* ---------- Eyebrow & kepala section ---------- */

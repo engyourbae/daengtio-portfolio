@@ -1,0 +1,45 @@
+/* ---------- Radar: lensa bulat yang menyingkap siluet Spider-Man ---------- */
+.radar { position: relative; display: block; width: 100%; isolation: isolate; }
+.radar__base {
+  display: block; width: 100%; height: 100%; pointer-events: none; -webkit-user-select: none; user-select: none;
+  filter: drop-shadow(0 22px 26px var(--shadow-photo)) brightness(0.94);
+  transition: filter 0.6s ease;
+}
+/* Pointer / jari / fokus datang: foto di luar lensa meredup sedikit (kelas dipasang skrip, bukan per frame) */
+.radar.is-active .radar__base { filter: drop-shadow(0 22px 26px var(--shadow-photo)) brightness(0.8); }
+
+.radar__lens, .radar__hud { position: absolute; left: 0; top: 0; display: block; pointer-events: none; will-change: transform; opacity: 0; transition: opacity 0.7s ease; }
+.radar.is-on .radar__lens, .radar.is-on .radar__hud { opacity: 1; }
+.radar.is-on .radar__hud { opacity: 0.92; }
+/* Lensa: wadah bertopeng lembut. Isi digeser kebalikan oleh skrip supaya gambar tetap selaras dengan foto dasar. */
+.radar__lens {
+  border-radius: 50%; overflow: hidden;
+  -webkit-mask-image: radial-gradient(circle closest-side, #000 68%, rgba(0, 0, 0, 0) 100%);
+  mask-image: radial-gradient(circle closest-side, #000 68%, rgba(0, 0, 0, 0) 100%);
+}
+.radar__inner { position: absolute; left: 0; top: 0; display: block; transform-origin: 0 0; will-change: transform; }
+.radar__suit { position: absolute; display: block; height: auto; max-width: none; pointer-events: none; -webkit-user-select: none; user-select: none; }
+.radar__suit.v-red { opacity: var(--v-red); }
+.radar__suit.v-black { opacity: var(--v-black); }
+.radar__scan {
+  position: absolute; inset: -22%; display: block; border-radius: 50%; opacity: 0.4;
+  background: conic-gradient(from 0deg, transparent 0 292deg, color-mix(in srgb, var(--ring) 34%, transparent) 342deg, color-mix(in srgb, var(--ring) 80%, transparent) 360deg);
+}
+.radar__hud { color: var(--ring); }
+.radar__hud svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.radar__sweep, .radar__ping { transform-box: view-box; transform-origin: 50% 50%; }
+.radar__ping { opacity: 0; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .radar__scan { animation: radar-spin 3.8s linear infinite; }
+  .radar__sweep { animation: radar-spin 3.8s linear infinite; }
+  .radar.is-ping .radar__ping { animation: radar-ping 1.1s var(--ease) both; }
+}
+/* Reduced motion: lensa statis di wajah, tanpa sapuan, tanpa ping */
+@media (prefers-reduced-motion: reduce) {
+  .radar__scan, .radar__sweep, .radar__ping { display: none; }
+  .radar__lens, .radar__hud, .radar__base { transition: none; }
+}
+.radar.is-static .radar__scan, .radar.is-static .radar__sweep, .radar.is-static .radar__ping { display: none; }
+@keyframes radar-spin { to { transform: rotate(360deg); } }
+@keyframes radar-ping { 0% { transform: scale(0.25); opacity: 0.95; } 100% { transform: scale(1.4); opacity: 0; } }

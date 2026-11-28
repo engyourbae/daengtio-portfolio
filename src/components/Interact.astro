@@ -1,76 +1,11 @@
-<div class="cursor" aria-hidden="true"></div>
+<div class="cursor" aria-hidden="true">
+  <i class="cursor__ring"></i>
+  <i class="cursor__dot"></i>
+  <b class="cursor__label"></b>
+</div>
 
 <script>
-  // Micro-interaction konsisten. Semua dimatikan bila prefers-reduced-motion, dan hanya untuk pointer halus (mouse/trackpad).
-  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-  const root = document.documentElement;
-
-  // Counter: angka sudah benar di HTML; animasi hanya menghitung naik saat terlihat.
-  const counters = Array.from(document.querySelectorAll<HTMLElement>('[data-count]'));
-  if (counters.length && !reduce && 'IntersectionObserver' in window) {
-    const io = new IntersectionObserver((entries) => entries.forEach((e) => {
-      if (!e.isIntersecting) return;
-      io.unobserve(e.target);
-      const el = e.target as HTMLElement;
-      const to = Number(el.dataset.count) || 0;
-      const t0 = performance.now(), dur = 1100;
-      const tick = (t: number) => {
-        const k = Math.min(1, (t - t0) / dur);
-        el.textContent = String(Math.round(to * (1 - Math.pow(1 - k, 3))));
-        if (k < 1) requestAnimationFrame(tick);
-      };
-      el.textContent = '0';
-      requestAnimationFrame(tick);
-    }), { threshold: 0.6 });
-    counters.forEach((c) => io.observe(c));
-  }
-
-  if (fine && !reduce) {
-    // Tombol magnetik halus.
-    document.querySelectorAll<HTMLElement>('[data-magnetic]').forEach((el) => {
-      el.addEventListener('pointermove', (e) => {
-        const r = el.getBoundingClientRect();
-        const x = (e.clientX - (r.left + r.width / 2)) * 0.22;
-        const y = (e.clientY - (r.top + r.height / 2)) * 0.3;
-        el.style.setProperty('--tx', `${x.toFixed(1)}px`);
-        el.style.setProperty('--ty', `${y.toFixed(1)}px`);
-      });
-      el.addEventListener('pointerleave', () => { el.style.removeProperty('--tx'); el.style.removeProperty('--ty'); });
-    });
-
-    // Tilt kartu dengan kilau yang mengikuti pointer.
-    document.querySelectorAll<HTMLElement>('[data-tilt]').forEach((el) => {
-      el.addEventListener('pointermove', (e) => {
-        const r = el.getBoundingClientRect();
-        const px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height;
-        el.style.setProperty('--ry', `${((px - 0.5) * 10).toFixed(2)}deg`);
-        el.style.setProperty('--rx', `${((0.5 - py) * 8).toFixed(2)}deg`);
-        el.style.setProperty('--mx', `${(px * 100).toFixed(1)}%`);
-        el.style.setProperty('--my', `${(py * 100).toFixed(1)}%`);
-      });
-      el.addEventListener('pointerleave', () => { ['--rx', '--ry'].forEach((p) => el.style.removeProperty(p)); });
-    });
-
-    // Cincin kursor yang membesar di atas elemen interaktif.
-    const ring = document.querySelector<HTMLElement>('.cursor');
-    if (ring) {
-      root.classList.add('has-cursor');
-      let x = -100, y = -100, tx = x, ty = y, raf = 0;
-      const loop = () => {
-        x += (tx - x) * 0.22; y += (ty - y) * 0.22;
-        ring.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-        raf = Math.abs(tx - x) + Math.abs(ty - y) > 0.3 ? requestAnimationFrame(loop) : 0;
-      };
-      addEventListener('pointermove', (e) => {
-        if (e.pointerType !== 'mouse') return;
-        tx = e.clientX; ty = e.clientY;
-        ring.classList.add('is-on');
-        const t = (e.target as Element | null)?.closest('a, button, [data-tilt], input, textarea, label');
-        ring.dataset.state = !t ? '' : t.matches('input, textarea') ? 'text' : 'link';
-        if (!raf) raf = requestAnimationFrame(loop);
-      }, { passive: true });
-      document.addEventListener('pointerleave', () => ring.classList.remove('is-on'));
-    }
-  }
+  // Hover + sentuh untuk semua elemen, tombol magnetik, tilt, dan kursor. Lihat src/lib/fx.ts.
+  import { initFx } from '../lib/fx';
+  initFx();
 </script>

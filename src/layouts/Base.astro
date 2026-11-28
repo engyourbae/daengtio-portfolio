@@ -1,6 +1,7 @@
 ---
-import '@fontsource/anton';
-import '@fontsource-variable/instrument-sans';
+import '@fontsource/anton/latin-400.css';
+import '@fontsource-variable/instrument-sans/latin-wght.css';
+import antonWoff2 from '@fontsource/anton/files/anton-latin-400-normal.woff2?url';
 import '../styles/tokens.css';
 import '../styles/base.css';
 import '../styles/components.css';
@@ -8,33 +9,71 @@ import '../styles/sections.css';
 import '../styles/header.css';
 import '../styles/hero.css';
 import '../styles/photo.css';
+import '../styles/radar.css';
+import '../styles/idcard.css';
 import '../styles/backdrop.css';
+import '../styles/fx.css';
 import '../styles/loader.css';
-import { asset, home, profile, seo } from '../data/site';
+import { asset, home, profile, seo, geo, photos, skills } from '../data/site';
 import Backdrop from '../components/Backdrop.astro';
 import Loader from '../components/Loader.astro';
 import Motion from '../components/Motion.astro';
 import Interact from '../components/Interact.astro';
 
-interface Props { title?: string; description?: string; noindex?: boolean }
-const { title, description = seo.description, noindex = false } = Astro.props;
+interface Props { title?: string; description?: string; noindex?: boolean; preloadHero?: boolean }
+const { title, description = seo.description, noindex = false, preloadHero = false } = Astro.props;
 
 const fullTitle = title ? `${title} | ${profile.name}` : seo.title;
 const site = Astro.site ?? new URL('https://engyourbae.github.io');
 const canonical = new URL(Astro.url.pathname, site).href;
-const ogImage = new URL(asset('og/og-default.png'), site).href;
+const homeUrl = new URL(home, site).href;
+const ogImage = new URL(asset('og/og-default.jpg'), site).href;
+const ogAlt = `${profile.name}, ${profile.role}. ${seo.tagline}`;
+const sameAs = [profile.github, profile.instagram, profile.tiktok];
 
+// Satu graf JSON-LD: orang, situs, dan halaman profil (formal, terbaca mesin pencari).
 const jsonLd = {
   '@context': 'https://schema.org',
-  '@type': 'Person',
-  name: profile.name,
-  jobTitle: profile.role,
-  url: new URL(home, site).href,
-  image: ogImage,
-  address: { '@type': 'PostalAddress', addressLocality: profile.location, addressCountry: 'ID' },
-  affiliation: { '@type': 'CollegeOrUniversity', name: 'IAIN Pontianak' },
-  sameAs: [profile.github, profile.instagram],
+  '@graph': [
+    {
+      '@type': 'Person',
+      '@id': `${homeUrl}#orang`,
+      name: profile.name,
+      givenName: 'Daeng Tio',
+      familyName: 'Waldi',
+      jobTitle: profile.role,
+      description: seo.tagline,
+      url: homeUrl,
+      image: ogImage,
+      address: { '@type': 'PostalAddress', addressLocality: profile.location, addressCountry: 'ID' },
+      affiliation: { '@type': 'CollegeOrUniversity', name: 'IAIN Pontianak' },
+      knowsAbout: skills.groups.flatMap((g) => g.items),
+      sameAs,
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${homeUrl}#situs`,
+      url: homeUrl,
+      name: `${profile.name} | Portofolio`,
+      inLanguage: 'id-ID',
+      publisher: { '@id': `${homeUrl}#orang` },
+    },
+    {
+      '@type': 'ProfilePage',
+      '@id': `${homeUrl}#profil`,
+      url: homeUrl,
+      name: seo.title,
+      isPartOf: { '@id': `${homeUrl}#situs` },
+      mainEntity: { '@id': `${homeUrl}#orang` },
+      primaryImageOfPage: ogImage,
+    },
+  ],
 };
+
+// Preload foto hero: foto normal selalu, siluet hanya untuk tema aktif (dipilih skrip di bawah, tanpa preload ganda).
+const preload = preloadHero && photos.normal
+  ? { normal: photos.normal.src, red: photos.radar.red?.src ?? null, black: photos.radar.black?.src ?? null }
+  : null;
 ---
 <!doctype html>
 <html lang="id" data-theme="terang">
@@ -43,34 +82,71 @@ const jsonLd = {
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
+    <meta name="keywords" content={seo.keywords.join(', ')} />
     <meta name="author" content={profile.name} />
+    <meta name="creator" content={profile.name} />
+    <meta name="generator" content="Astro" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta name="robots" content={noindex ? 'noindex, follow' : 'index, follow, max-image-preview:large, max-snippet:-1'} />
+    <meta name="color-scheme" content="light dark" />
     <link rel="canonical" href={canonical} />
-    {noindex && <meta name="robots" content="noindex" />}
+    <link rel="alternate" hreflang="id" href={canonical} />
 
+    <!-- Identitas aplikasi (tambah ke layar utama): nama lengkap, tampilan penuh, bilah status transparan -->
+    <meta name="application-name" content={profile.shortName} />
+    <meta name="apple-mobile-web-app-title" content={profile.shortName} />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="format-detection" content="telephone=no, email=no, address=no" />
+    <meta name="msapplication-TileColor" content="#06070A" />
     <meta name="theme-color" content="#F7F2EC" />
+
+    <!-- Lokasi: Pontianak -->
+    <meta name="geo.region" content="ID-KB" />
+    <meta name="geo.placename" content={profile.location} />
+    <meta name="geo.position" content={`${geo.lat};${geo.lon}`} />
+    <meta name="ICBM" content={`${geo.lat}, ${geo.lon}`} />
+
     <link rel="icon" href={asset('brand/favicon.ico')} sizes="48x48" />
     <link rel="icon" href={asset('brand/favicon-32.png')} type="image/png" sizes="32x32" />
     <link rel="apple-touch-icon" href={asset('brand/apple-touch-icon.png')} />
     <link rel="manifest" href={`${home}site.webmanifest`} />
+    <link rel="me" href={profile.github} />
+    <link rel="preload" as="font" type="font/woff2" href={antonWoff2} crossorigin />
 
+    <!-- Open Graph: kartu pratinjau saat tautan dibagikan -->
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="id_ID" />
-    <meta property="og:site_name" content={profile.name} />
+    <meta property="og:site_name" content={`${profile.name} | Portofolio`} />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImage} />
+    <meta property="og:image:secure_url" content={ogImage} />
+    <meta property="og:image:type" content="image/jpeg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content={`${profile.name}, ${profile.role}`} />
+    <meta property="og:image:alt" content={ogAlt} />
+    <meta property="profile:first_name" content="Daeng Tio" />
+    <meta property="profile:last_name" content="Waldi" />
+    <meta property="profile:username" content="engyourbae" />
+
+    <!-- Twitter / X: kartu besar dengan label ringkas -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content={ogAlt} />
+    <meta name="twitter:label1" content="Peran" />
+    <meta name="twitter:data1" content={profile.role} />
+    <meta name="twitter:label2" content="Berbasis di" />
+    <meta name="twitter:data2" content={profile.location} />
 
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
 
-    <!-- Dijalankan sebelum render pertama: tema tanpa kedip, dan penanda loader. -->
+    <script is:inline set:html={`window.__PRE=${JSON.stringify(preload)};`} />
+    <!-- Dijalankan sebelum render pertama: tema tanpa kedip, penanda loader, mode gerak, dan preload foto hero sesuai tema. -->
     <script is:inline>
       (function () {
         var d = document.documentElement, t, seen = false;
@@ -87,12 +163,30 @@ const jsonLd = {
         if (m) m.setAttribute('content', t === 'gelap' ? '#06070A' : '#F7F2EC');
         try { seen = !!sessionStorage.getItem('dt-seen'); } catch (e) {}
         var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        // Konten baru disembunyikan (untuk animasi masuk) bila JS hidup. Bila skrip gerak gagal, kelas dicabut: konten tetap terlihat.
+        if (!reduce && 'IntersectionObserver' in window) {
+          d.classList.add('motion');
+          setTimeout(function () { if (!d.classList.contains('motion-ready')) d.classList.remove('motion'); }, 4000);
+        }
         if (!seen && !reduce) {
           d.classList.add('loading');
           // Pengaman: halaman tidak boleh tertahan bila skrip loader gagal.
           setTimeout(function () { d.classList.remove('loading'); d.classList.add('ready'); }, 7000);
         } else {
           d.classList.add('ready');
+        }
+        // Preload foto hero: hanya varian siluet untuk tema yang aktif.
+        var P = window.__PRE;
+        if (P) {
+          var add = function (href, hi) {
+            if (!href) return;
+            var l = document.createElement('link');
+            l.rel = 'preload'; l.as = 'image'; l.href = href;
+            if (hi) l.setAttribute('fetchpriority', 'high');
+            document.head.appendChild(l);
+          };
+          add(P.normal, true);
+          add(t === 'gelap' ? P.black : P.red, false);
         }
       })();
     </script>

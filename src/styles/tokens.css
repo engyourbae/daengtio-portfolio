@@ -108,3 +108,12 @@
   --accent-hi: #d6dde8;
   --glow: rgba(123, 156, 203, 0.32);
 }
+
+/* Warna merek untuk kotak kontak. Dipakai sebagai warna logo dan semburat halus; teks tetap --on-panel (kontras AA di kedua tema). */
+:root {
+  --brand-gmail: #ff6b5e;
+  --brand-ig: #ff5c93;
+  --brand-tt: #3df5ee;
+  --brand-tt2: #ff4d6d;
+  --brand-gh: #f0f3f6;
+}

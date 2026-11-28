@@ -1,49 +1,58 @@
 ---
-import { profile, certificates } from '../data/site';
+import { profile, certificates, contacts } from '../data/site';
 import Icon from './Icon.astro';
 import WebArt from './WebArt.astro';
+import SplitText from './SplitText.astro';
 const hasForm = Boolean(profile.formEndpoint);
-const words = 'Punya ide atau kebutuhan? Ceritakan.'.split(' ');
 const n = certificates.length > 0 ? '05' : '04';
 ---
-<section class="contact" id="kontak" aria-labelledby="kontak-title">
+<section class="contact" id="kontak" aria-labelledby="kontak-title" data-tint="accent">
   <div class="contact__edge" aria-hidden="true"></div>
-  <WebArt class="contact__web" spokes={14} rings={7} />
+  <WebArt class="contact__web" spokes={14} rings={7} data-parallax="0.15" />
   <div class="wrap contact__in">
-    <p class="eyebrow" data-reveal><b aria-hidden="true">{n}</b>Kontak</p>
-    <h2 id="kontak-title" class="contact__title">
-      {words.map((w, i) => <><span class="tw" data-reveal style={`--d:${i}`}>{w}</span>{' '}</>)}
-    </h2>
+    <p class="eyebrow" data-reveal="left"><b aria-hidden="true">{n}</b>Kontak</p>
+    <SplitText as="h2" id="kontak-title" class="contact__title" mode="word" text="Punya ide atau kebutuhan? Ceritakan." accent={['ceritakan']} wave skew />
 
     <div class:list={['contact__grid', hasForm && 'has-form']}>
-      <div class="contact__main" data-reveal>
-        <p class="contact__label">Email</p>
-        <div class="mailrow">
-          <a class="mail" href={`mailto:${profile.email}`}>{profile.email}</a>
-          <button class="copy" type="button" data-copy={profile.email} aria-label="Salin alamat email">
-            <span class="copy__ico copy__ico--a"><Icon name="copy" size={20} /></span>
-            <span class="copy__ico copy__ico--b"><Icon name="check" size={20} /></span>
-            <span class="copy__ring" aria-hidden="true"></span>
-          </button>
-        </div>
-        <p class="copy__tip" aria-hidden="true" data-copy-tip>Klik ikon untuk menyalin</p>
-        <span class="sr-only" role="status" aria-live="polite" data-copy-live></span>
+      <div class="contact__main">
+        <ul class="tiles" aria-label="Hubungi saya lewat">
+          {contacts.map((c, i) => (
+            <li data-reveal={i % 2 ? 'right' : 'left'} style={`--d:${i}`}>
+              <a
+                class="tile"
+                data-tilt
+                data-tile={c.id}
+                data-cursor={c.cursor}
+                href={c.href}
+                {...(c.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+              >
+                <span class="tile__ico"><Icon name={`b-${c.id}`} size={44} /></span>
+                <span class="tile__go" aria-hidden="true"><Icon name="arrow" size={20} /></span>
+                <span class="tile__name">{c.name}</span>
+                <span class="tile__handle">{c.handle}</span>
+                {c.external && <span class="sr-only"> (tab baru)</span>}
+              </a>
+            </li>
+          ))}
+        </ul>
 
-        <div class="contact__actions">
-          <a class="btn btn--accent" href={`mailto:${profile.email}`} data-magnetic>
-            <Icon name="mail" size={18} />Kirim email
-          </a>
-          <a class="btn" href={profile.instagram} target="_blank" rel="noopener noreferrer" data-magnetic>
-            <Icon name="instagram" size={18} />Instagram<span class="sr-only"> (tab baru)</span>
-          </a>
-          <a class="btn" href={profile.github} target="_blank" rel="noopener noreferrer" data-magnetic>
-            <Icon name="github" size={18} />GitHub<span class="sr-only"> (tab baru)</span>
-          </a>
+        <div class="copyrow" data-reveal="up" style="--d:2">
+          <p class="contact__label">Salin alamat email</p>
+          <div class="mailrow">
+            <span class="mail">{profile.email}</span>
+            <button class="copy" type="button" data-copy={profile.email} data-cursor="Salin" aria-label="Salin alamat email">
+              <span class="copy__ico copy__ico--a"><Icon name="copy" size={20} /></span>
+              <span class="copy__ico copy__ico--b"><Icon name="check" size={20} /></span>
+              <span class="copy__ring" aria-hidden="true"></span>
+            </button>
+          </div>
+          <p class="copy__tip" aria-hidden="true" data-copy-tip>Klik ikon untuk menyalin</p>
+          <span class="sr-only" role="status" aria-live="polite" data-copy-live></span>
         </div>
       </div>
 
       {hasForm && (
-        <form class="cform" data-form action={profile.formEndpoint} method="POST" data-reveal style="--d:1">
+        <form class="cform" data-form action={profile.formEndpoint} method="POST" data-reveal="up" style="--d:1">
           <div class="field"><label for="f-nama">Nama</label><input id="f-nama" name="name" autocomplete="name" required /></div>
           <div class="field"><label for="f-email">Email</label><input id="f-email" name="email" type="email" autocomplete="email" required /></div>
           <div class="field"><label for="f-pesan">Pesan</label><textarea id="f-pesan" name="message" required></textarea></div>
@@ -66,7 +75,7 @@ const n = certificates.length > 0 ? '05' : '04';
     copyBtn?.classList.remove('is-copied');
     void copyBtn?.offsetWidth; // restart animasi riak
     if (ok) copyBtn?.classList.add('is-copied');
-    const msg = ok ? 'Email tersalin' : 'Gagal menyalin. Salin manual dari tautan email.';
+    const msg = ok ? 'Email tersalin' : 'Gagal menyalin. Salin manual dari teks email.';
     if (live) live.textContent = msg;
     if (tip) tip.textContent = msg;
     clearTimeout(timer);
@@ -109,7 +118,7 @@ const n = certificates.length > 0 ? '05' : '04';
       form.reset();
       if (ok) ok.textContent = 'Pesan terkirim. Saya balas lewat email.';
     } catch {
-      if (err) err.textContent = 'Pesan belum terkirim. Coba lagi, atau kirim langsung ke email di atas.';
+      if (err) err.textContent = 'Pesan belum terkirim. Coba lagi, atau kirim langsung lewat salah satu kotak di atas.';
     } finally {
       submit.disabled = false;
       form.removeAttribute('aria-busy');

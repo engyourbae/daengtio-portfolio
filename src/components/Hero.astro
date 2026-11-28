@@ -1,35 +1,29 @@
 ---
 import { profile, hero } from '../data/site';
 import ProfilePhoto from './ProfilePhoto.astro';
+import SplitText from './SplitText.astro';
 import WebArt from './WebArt.astro';
 import Icon from './Icon.astro';
-
-const words = profile.headline.split(' ');
-const isAccent = (w: string) => hero.accentWords.includes(w.toLowerCase().replace(/[^a-z]/g, ''));
 ---
-<section class="hero" aria-labelledby="hero-title">
+<section class="hero" aria-labelledby="hero-title" data-tint="accent">
   <div class="wrap hero__grid">
     <div class="hero__text">
-      {profile.available && <p class="badge" data-in style="--i:0">{profile.availableLabel}</p>}
-      <h1 id="hero-title" aria-label={profile.headline}>
-        {words.map((w, i) => (
-          <span class="w" aria-hidden="true"><span class:list={['w__in', { 'is-accent': isAccent(w) }]} style={`--i:${i + 1}`}>{w}</span></span>
-        ))}
-      </h1>
-      <p class="hero__intro" data-in style={`--i:${words.length + 1}`}>{profile.intro}</p>
-      <div class="hero__cta" data-in style={`--i:${words.length + 2}`}>
-        <a class="btn btn--accent" href="#project">Lihat project <Icon name="arrow" size={18} /></a>
-        <a class="btn btn--line" href="#kontak">Hubungi saya</a>
+      {profile.available && <p class="badge" data-reveal="left" style="--d:0">{profile.availableLabel}</p>}
+      <SplitText as="h1" id="hero-title" mode="char" text={profile.headline} accent={hero.accentWords} wave />
+      <SplitText as="p" class="hero__intro" mode="line" text={profile.intro} style="--d:3" />
+      <div class="hero__cta" data-reveal="up" style="--d:4">
+        <a class="btn btn--accent" href="#project" data-magnetic>Lihat project <Icon name="arrow" size={18} /></a>
+        <a class="btn btn--line" href="#kontak" data-magnetic>Hubungi saya</a>
       </div>
-      <p class="hero__place" data-in style={`--i:${words.length + 3}`}>{profile.location} · {profile.coords}</p>
+      <p class="hero__place" data-reveal="blur" style="--d:5">{profile.location} · {profile.coords}</p>
     </div>
 
-    <div class="stage" data-in style="--i:2">
+    <div class="stage" data-reveal="zoom" style="--d:2">
       <div class="stage__disc"></div>
-      <WebArt class="stage__web" spokes={12} rings={6} />
+      <WebArt class="stage__web" spokes={12} rings={6} data-parallax="0.1" />
       <span class="stage__orbit" aria-hidden="true"></span>
       <ProfilePhoto />
-      <ul class="stage__chips" aria-hidden="true">
+      <ul class="stage__chips" aria-hidden="true" data-parallax="0.05">
         {hero.chips.map((c, i) => <li style={`--n:${i}`}>{c}</li>)}
       </ul>
     </div>

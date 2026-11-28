@@ -2,6 +2,7 @@
 import { projects } from '../data/site';
 import Icon from './Icon.astro';
 import WebArt from './WebArt.astro';
+import SplitText from './SplitText.astro';
 import type { Project } from '../data/site';
 
 const featured = projects.find((x) => x.featured) ?? projects[0];
@@ -9,17 +10,17 @@ const rest = projects.filter((x) => x !== featured);
 const initial = (x: Project) => x.title.trim().charAt(0).toUpperCase();
 const num = (i: number) => String(i + 1).padStart(2, '0');
 ---
-<section class="section projects" id="project" aria-labelledby="project-title">
+<section class="section projects" id="project" aria-labelledby="project-title" data-tint="accent">
   <div class="wrap">
-    <p class="eyebrow" data-reveal><b aria-hidden="true">02</b>Project</p>
+    <p class="eyebrow" data-reveal="left"><b aria-hidden="true">02</b>Project</p>
     <div class="sec-head">
-      <h2 id="project-title" data-reveal>Project yang sudah berjalan.</h2>
-      <p data-reveal style="--d:1">Semua bisa dibuka dan dicoba langsung.</p>
+      <SplitText as="h2" id="project-title" mode="char" text="Project yang sudah berjalan." wave skew />
+      <p data-reveal="right" style="--d:1">Semua bisa dibuka dan dicoba langsung.</p>
     </div>
 
-    <div class="feature-wrap" data-reveal>
-      <article class="feature" data-tilt>
-        <WebArt class="feature__web" spokes={10} rings={5} />
+    <div class="feature-wrap" data-reveal="tilt">
+      <article class="feature" data-tilt data-cursor={featured.url ? 'Buka' : undefined}>
+        <WebArt class="feature__web" spokes={10} rings={5} data-parallax="0.12" />
         <span class="feature__flag">Fitur utama</span>
         <div class:list={['proj-icon', !featured.icon && 'proj-icon--mono']}>
           {featured.icon ? <img src={featured.icon} width="160" height="160" alt="" loading="lazy" decoding="async" /> : <span aria-hidden="true">{initial(featured)}</span>}
@@ -41,9 +42,9 @@ const num = (i: number) => String(i + 1).padStart(2, '0');
     <ul class="pgrid">
       {rest.map((x, i) => {
         const Tag = x.url ? 'a' : 'div';
-        const attrs = x.url ? { href: x.url, target: '_blank', rel: 'noopener noreferrer', 'data-tilt': '' } : {};
+        const attrs = x.url ? { href: x.url, target: '_blank', rel: 'noopener noreferrer', 'data-tilt': '', 'data-cursor': 'Buka' } : {};
         return (
-          <li data-reveal style={`--d:${i % 3}`}>
+          <li data-reveal={i % 2 ? 'right' : 'left'} style={`--d:${i % 3}`}>
             <Tag class:list={['pcard', !x.url && 'is-soon']} {...attrs}>
               <span class="pcard__n" aria-hidden="true">{num(i + 1)}</span>
               <div class:list={['proj-icon', !x.icon && 'proj-icon--mono']}>

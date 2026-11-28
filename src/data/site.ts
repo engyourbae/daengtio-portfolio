@@ -7,6 +7,21 @@ import path from 'node:path';
 
 const env = import.meta.env;
 const clean = (v: unknown): string => (typeof v === 'string' ? v.trim() : '');
+/**
+ * Bersihkan tautan: buang parameter pelacak (?_r, ?_t, ?lqvp, dst.) dan hash, buang "/" penutup.
+ * Variable kosong atau tidak valid -> pakai nilai bawaan (wajib `||`, bukan `??`).
+ */
+const cleanUrl = (v: unknown, fallback: string): string => {
+  const raw = clean(v) || fallback;
+  try {
+    const u = new URL(raw);
+    u.search = '';
+    u.hash = '';
+    return u.href.replace(/\/$/, '');
+  } catch {
+    return fallback;
+  }
+};
 
 /* ---------- Path & aset ---------- */
 const base = String(env.BASE_URL || '/').replace(/\/$/, '');
@@ -28,7 +43,7 @@ export function findAsset(stem: string): string | null {
 /* ---------- Identitas ---------- */
 export const profile = {
   name: 'Daeng Tio Waldi',
-  shortName: 'Daeng Tio',
+  shortName: 'Daeng Tio Waldi', // dipakai di header, loader, footer, dan manifest
   role: 'Freelance Web & Game Developer',
   headline: 'Saya membangun web dan game yang dipakai orang sungguhan.',
   intro:
@@ -36,44 +51,62 @@ export const profile = {
   available: true,
   availableLabel: 'Terbuka untuk freelance',
   email: clean(env.PUBLIC_CONTACT_EMAIL) || 'daengtiow@gmail.com',
-  github: clean(env.PUBLIC_GITHUB_URL) || 'https://github.com/engyourbae',
-  instagram: clean(env.PUBLIC_INSTAGRAM_URL) || 'https://instagram.com/daengtio_',
+  github: cleanUrl(env.PUBLIC_GITHUB_URL, 'https://github.com/engyourbae'),
+  instagram: cleanUrl(env.PUBLIC_INSTAGRAM_URL, 'https://www.instagram.com/daengtio_'),
+  tiktok: cleanUrl(env.PUBLIC_TIKTOK_URL, 'https://www.tiktok.com/@daengtio_0'),
   formEndpoint: clean(env.PUBLIC_FORM_ENDPOINT),
   location: 'Pontianak',
   coords: '0°01′ LS, 109°20′ BT',
 };
 
+/** Koordinat desimal, turunan dari `profile.coords` (0°01′ LS, 109°20′ BT) untuk meta geo. */
+export const geo = { lat: -0.0167, lon: 109.3333 };
+
 export const seo = {
+  tagline: 'Merajut bisnis dan kode menjadi produk yang dipakai orang sungguhan.',
+  keywords: [
+    'Daeng Tio Waldi', 'web developer', 'game developer', 'freelance', 'portofolio', 'Pontianak',
+    'Manajemen Bisnis Syariah', 'IAIN Pontianak', 'PWA', 'React', 'TypeScript', 'Astro',
+  ],
   title: 'Daeng Tio Waldi | Web & Game Developer',
   description:
     'Portofolio Daeng Tio Waldi, mahasiswa Manajemen Bisnis Syariah dan freelance web & game developer di Pontianak. Terbuka untuk pekerjaan freelance.',
 };
 
 /**
- * Foto profil interaktif. Semua berupa cutout transparan (webp alpha), tanpa latar.
- *  - normal : foto biasa tanpa Spider-Man (kondisi diam).
- *             TODO: belum ada. Taruh file `public/assets/profile/profile-normal.webp`
- *             (cutout transparan, komposisi sama dengan profile-main) dan situs memakainya otomatis.
- *             Selama belum ada, kondisi diam memakai foto "half".
- *  - half   : separuh wajah/badan berubah jadi suit (muncul saat hover / tap pertama / fokus).
- *  - action : pose aksi (muncul saat klik / tap kedua / tahan).
- * Varian `red` dipakai tema terang, `black` dipakai tema gelap.
+ * Foto profil. Semua file ada di public/assets/profile/ dan dicari otomatis lewat findAsset().
+ *  - formal : potret formal berlatar biru (900 px). Dipakai di kartu ID, latar biru memang disengaja.
+ *  - normal : potret formal yang sama, cutout transparan (hasil chroma-key biru). Kondisi diam di hero.
+ *  - radar  : siluet Spider-Man yang tampak di dalam lensa radar. Varian `red` untuk tema terang,
+ *             `black` untuk tema gelap. Tiap lapisan punya `fit` (persen terhadap bingkai formal 896x1196)
+ *             supaya tersejajar sempurna dengan foto formal. Ganti foto? sesuaikan `fit` di sini, bukan di CSS.
+ *  - action : pose aksi (klik / tap tahan di hero). Varian merah (terang) / hitam (gelap).
+ * Ukuran width/height harus sama dengan ukuran asli file.
  */
 const photo = (stem: string, width: number, height: number) => {
   const src = findAsset(stem);
   return src ? { src, width, height } : null;
 };
+export interface Fit { left: number; top: number; width: number }
+const layer = (stem: string, width: number, height: number, fit: Fit) => {
+  const p = photo(stem, width, height);
+  return p ? { ...p, fit } : null;
+};
 export const photos = {
-  normal: photo('profile/profile-normal', 800, 1069),
-  half: {
-    red: photo('profile/profile-hero-red', 900, 1203),
-    black: photo('profile/profile-main', 800, 1069),
+  formal: photo('profile/profile-formal', 896, 1196),
+  normal: photo('profile/profile-normal', 896, 1196),
+  radar: {
+    red: layer('profile/profile-hero-red', 900, 1203, { left: 0.076, top: 0.816, width: 99.741 }),
+    black: layer('profile/profile-main', 800, 1069, { left: -0.088, top: 0.435, width: 100.305 }),
   },
   action: {
     red: photo('profile/profile-action', 1000, 1094),
     black: photo('profile/profile-alt', 900, 984),
   },
-  altText: 'Daeng Tio Waldi, separuh wajahnya berubah menjadi topeng Spider-Man',
+  /** Geometri lensa radar, pecahan dari lebar/tinggi bingkai formal. face = pusat wajah, patrol = jangkauan patroli saat idle. */
+  lens: { face: { x: 0.57, y: 0.45 }, r: 0.21, patrol: { ax: 0.11, ay: 0.12 } },
+  altText: 'Potret Daeng Tio Waldi',
+  altFormal: 'Foto formal Daeng Tio Waldi berblazer biru',
 };
 
 /** Elemen dekoratif hero. Hanya merujuk bidang kerja yang memang ada di daftar project. */
@@ -125,7 +158,6 @@ export const projects: Project[] = [
     desc: 'Sistem kasir toko berbasis web (PWA) dengan penyimpanan Supabase.',
     url: clean(env.PUBLIC_URL_KASIR_DAENG) || 'https://engyourbae.github.io/kasir-toko/',
     tags: ['PWA', 'JavaScript', 'Supabase'],
-    featured: true,
   }),
   mk({
     slug: 'pintara',
@@ -140,6 +172,7 @@ export const projects: Project[] = [
     desc: 'Game kuis pengetahuan berbahasa Indonesia.',
     url: clean(env.PUBLIC_URL_DUOPOP) || 'https://engyourbae.github.io/duopop-/',
     tags: ['Game', 'React', 'TypeScript'],
+    featured: true,
   }),
   mk({
     slug: 'financepay',
@@ -196,6 +229,33 @@ export const skillItems = skills.groups.flatMap((g, gi) =>
     usedIn: projects.filter((x) => x.tags.some((t) => t.toLowerCase() === name.toLowerCase())).map((x) => x.title),
   })),
 );
+
+/* ---------- Kontak & sosial ---------- */
+const handleOf = (url: string): string => {
+  try {
+    const seg = new URL(url).pathname.split('/').filter(Boolean).pop() ?? '';
+    return seg ? `@${seg.replace(/^@/, '')}` : url;
+  } catch {
+    return url;
+  }
+};
+export interface Contact { id: 'gmail' | 'instagram' | 'tiktok' | 'github'; name: string; handle: string; href: string; external: boolean; cursor: string }
+/** Satu kotak = satu tautan. Urutan di sini = urutan tampil. */
+export const contacts: Contact[] = [
+  { id: 'gmail', name: 'Gmail', handle: profile.email, href: `mailto:${profile.email}`, external: false, cursor: 'Kirim' },
+  { id: 'instagram', name: 'Instagram', handle: handleOf(profile.instagram), href: profile.instagram, external: true, cursor: 'Buka' },
+  { id: 'tiktok', name: 'TikTok', handle: handleOf(profile.tiktok), href: profile.tiktok, external: true, cursor: 'Buka' },
+  { id: 'github', name: 'GitHub', handle: handleOf(profile.github), href: profile.github, external: true, cursor: 'Buka' },
+];
+export const socials = contacts.filter((c) => c.external);
+
+/** Kartu ID di Tentang. Hanya memakai data di atas: tidak ada nomor ID atau data baru. */
+export const idCard = {
+  label: 'Kartu perkenalan',
+  name: profile.name,
+  role: profile.role,
+  rows: about.facts, // Kampus, Jurusan, Angkatan, Berbasis di
+};
 
 /* ---------- Sertifikat (section tampil hanya bila diisi) ---------- */
 export interface Certificate { title: string; issuer: string; year: string; url?: string }

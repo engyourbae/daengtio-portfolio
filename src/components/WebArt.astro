@@ -3,8 +3,8 @@
  * Jaring laba-laba dibuat di build (tanpa aset gambar): jari-jari + lingkar yang melengkung ke dalam.
  * Warna mengikuti currentColor / --web. pathLength=1 supaya bisa dianimasikan "menggambar diri".
  */
-interface Props { spokes?: number; rings?: number; class?: string; sag?: number }
-const { spokes = 12, rings = 6, class: cls, sag = 0.16 } = Astro.props;
+interface Props { spokes?: number; rings?: number; class?: string; sag?: number; [k: string]: unknown }
+const { spokes = 12, rings = 6, class: cls, sag = 0.16, ...rest } = Astro.props;
 const R = 100;
 const pt = (a: number, r: number) => [Math.cos(a) * r, Math.sin(a) * r];
 const f = (n: number) => n.toFixed(2);
@@ -26,7 +26,7 @@ for (let j = 1; j <= rings; j++) {
   }
 }
 ---
-<svg class:list={['web-art', cls]} viewBox="-102 -102 204 204" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true" focusable="false">
+<svg class:list={['web-art', cls]} viewBox="-102 -102 204 204" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true" focusable="false" {...rest}>
   <path class="web-art__spokes" d={spokeD} pathLength="1" stroke-width="0.7" />
   <path class="web-art__rings" d={ringD} pathLength="1" stroke-width="0.55" />
 </svg>

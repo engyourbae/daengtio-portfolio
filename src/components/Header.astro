@@ -6,7 +6,7 @@ import Icon from './Icon.astro';
 ---
 <header class="site-header" data-menu="closed">
   <div class="site-header__bar">
-    <a class="brand" href={home} aria-label={`${profile.name}, beranda`}>
+    <a class="brand" href={home} aria-label={`${profile.name}, beranda`} data-cursor="Beranda">
       <LogoMark size={28} />
       <span class="brand__text">{profile.shortName}</span>
     </a>
@@ -25,6 +25,7 @@ import Icon from './Icon.astro';
 </header>
 
 <script>
+  import { onFrame, onMeasure } from '../lib/engine';
   const header = document.querySelector<HTMLElement>('.site-header')!;
   const toggle = header.querySelector<HTMLButtonElement>('.menu-toggle')!;
   const fill = header.querySelector<HTMLElement>('[data-progress]')!;
@@ -38,16 +39,21 @@ import Icon from './Icon.astro';
   header.querySelectorAll('.menu a').forEach((a) => a.addEventListener('click', () => setMenu(false)));
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setMenu(false); });
 
-  // Benang jaring memanjang mengikuti progres scroll; header mengecil setelah turun sedikit.
-  let ticking = false;
+  // Benang jaring memanjang mengikuti progres scroll; header mengecil setelah turun sedikit. Memakai loop bersama.
+  let lastY = -1;
   const update = () => {
     const el = document.documentElement;
     const max = el.scrollHeight - el.clientHeight;
     fill.style.setProperty('--p', (max > 0 ? el.scrollTop / max : 0).toFixed(4));
     header.classList.toggle('is-scrolled', el.scrollTop > 24);
-    ticking = false;
   };
-  addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
+  onFrame(() => {
+    const y = window.scrollY;
+    if (y === lastY) return;
+    lastY = y;
+    update();
+  });
+  onMeasure(update);
   update();
 
   // Penanda section aktif.

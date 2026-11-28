@@ -1,38 +1,42 @@
 ---
 import { about, stats } from '../data/site';
 import WebArt from './WebArt.astro';
-const words = about.title.split(' ');
+import SplitText from './SplitText.astro';
+import IdCard from './IdCard.astro';
 const [lede, ...rest] = about.paragraphs;
 ---
-<section class="section about" id="tentang" aria-labelledby="tentang-title">
-  <WebArt class="about__web" spokes={14} rings={7} />
+<section class="section about" id="tentang" aria-labelledby="tentang-title" data-tint="blue">
+  <WebArt class="about__web" spokes={14} rings={7} data-parallax="0.18" />
   <div class="wrap">
-    <p class="eyebrow" data-reveal><b aria-hidden="true">01</b>Tentang</p>
-    <h2 id="tentang-title" class="about__title">
-      {words.map((w, i) => <><span class="tw" data-reveal style={`--d:${i}`}>{w}</span>{' '}</>)}
-    </h2>
-
     <div class="about__grid">
-      <div class="about__text">
-        <p class="lede" data-reveal>{lede}</p>
-        {rest.map((t, i) => <p data-reveal style={`--d:${i + 1}`}>{t}</p>)}
-      </div>
+      <IdCard />
 
-      <aside class="about__side" aria-label="Fakta singkat">
-        <ul class="stats">
-          {stats.map((s, i) => (
-            <li class="stat" data-reveal style={`--d:${i}`}>
-              <span class="stat__n" data-count={s.value}>{s.value}</span>
-              <span class="stat__l">{s.label}</span>
-            </li>
-          ))}
-        </ul>
-        <dl class="facts">
+      <div class="about__main">
+        <p class="eyebrow" data-reveal="left"><b aria-hidden="true">01</b>Tentang</p>
+        <SplitText as="h2" id="tentang-title" class="about__title" mode="word" text={about.title} wave skew />
+
+        <div class="about__text">
+          <SplitText as="p" class="lede" mode="line" text={lede} />
+          {rest.map((t, i) => <SplitText as="p" mode="line" text={t} style={`--d:${i + 1}`} />)}
+        </div>
+
+        <dl class="facts" aria-label="Fakta singkat">
           {about.facts.map((f, i) => (
-            <div data-reveal style={`--d:${i}`}><dt>{f.term}</dt><dd>{f.detail}</dd></div>
+            <div data-reveal="left" style={`--d:${i}`} data-fx><dt>{f.term}</dt><dd>{f.detail}</dd></div>
           ))}
         </dl>
-      </aside>
+      </div>
+
+      <ul class="stats" aria-label="Angka singkat" data-parallax="0.04">
+        {stats.map((s, i) => (
+          <li data-reveal="zoom" style={`--d:${i}`}>
+            <div class="stat" data-tilt>
+              <span class="stat__n" data-count={s.value}>{s.value}</span>
+              <span class="stat__l">{s.label}</span>
+            </div>
+          </li>
+        ))}
+      </ul>
     </div>
   </div>
 </section>

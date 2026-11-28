@@ -1,0 +1,100 @@
+---
+/**
+ * Radar foto: foto dasar + lensa bulat berisi lapisan siluet Spider-Man yang tersejajar sempurna.
+ * Dipakai oleh hero (cutout transparan) dan kartu ID (foto formal berlatar biru). Gerak: src/lib/radar.ts.
+ * Semua elemen berupa <span> supaya sah di dalam <button>. Murni dekoratif (aria-hidden); teks aksesibel ada di pembungkusnya.
+ *
+ * Susunan:
+ *  .radar__base  foto dasar (diredupkan sedikit di luar lensa)
+ *  .radar__lens  wadah bertopeng lembut berukuran 2R, digeser/diskalakan JS
+ *    .radar__inner  bingkai penuh yang digeser kebalikan, berisi siluet merah/hitam (sesuai tema lewat --v-red/--v-black)
+ *    .radar__scan   sapuan conic-gradient yang berputar
+ *  .radar__hud   cincin, tanda skala, garis sapuan, ping (tidak bertopeng)
+ */
+import type { Fit } from '../data/site';
+interface Img { src: string; width: number; height: number }
+interface Layer extends Img { fit: Fit }
+interface Props {
+  base: Img;
+  red?: Layer | null;
+  black?: Layer | null;
+  face: { x: number; y: number };
+  r: number;
+  patrol: { ax: number; ay: number };
+  alt?: string;
+  priority?: boolean;
+  class?: string;
+}
+const { base, red, black, face, r, patrol, alt = '', priority = false, class: cls } = Astro.props;
+
+const f = (n: number) => n.toFixed(2);
+// tanda skala: 60 garis, tiap 5 lebih panjang
+let tickD = '';
+for (let i = 0; i < 60; i++) {
+  const a = (i / 60) * Math.PI * 2;
+  const long = i % 5 === 0;
+  const r0 = long ? 41.5 : 44.5;
+  tickD += `M${f(Math.cos(a) * r0)} ${f(Math.sin(a) * r0)}L${f(Math.cos(a) * 47)} ${f(Math.sin(a) * 47)}`;
+}
+const layers = [
+  red ? { ...red, v: 'red' } : null,
+  black ? { ...black, v: 'black' } : null,
+].filter(Boolean) as (Layer & { v: string })[];
+---
+<span
+  class:list={['radar', cls]}
+  data-radar
+  data-fx={face.x}
+  data-fy={face.y}
+  data-r={r}
+  data-ax={patrol.ax}
+  data-ay={patrol.ay}
+  style={`aspect-ratio:${base.width}/${base.height}`}
+>
+  <img
+    class="radar__base"
+    src={base.src}
+    width={base.width}
+    height={base.height}
+    alt={alt}
+    decoding="async"
+    loading={priority ? 'eager' : 'lazy'}
+    fetchpriority={priority ? 'high' : 'auto'}
+    draggable="false"
+  />
+  <span class="radar__lens" aria-hidden="true">
+    <span class="radar__inner">
+      {layers.map((l) => (
+        <img
+          class={`radar__suit v-${l.v}`}
+          src={l.src}
+          width={l.width}
+          height={l.height}
+          alt=""
+          decoding="async"
+          loading={priority ? 'eager' : 'lazy'}
+          draggable="false"
+          style={`left:${l.fit.left}%;top:${l.fit.top}%;width:${l.fit.width}%`}
+        />
+      ))}
+    </span>
+    <span class="radar__scan"></span>
+  </span>
+  <span class="radar__hud" aria-hidden="true">
+    <svg viewBox="-50 -50 100 100" fill="none" stroke="currentColor" stroke-linecap="round" focusable="false">
+      <circle class="radar__ping" r="46" stroke-width="1.2" />
+      <circle r="47.5" stroke-width="1" />
+      <circle r="31" stroke-width="0.5" stroke-dasharray="1.2 2.4" />
+      <circle r="15" stroke-width="0.5" stroke-dasharray="0.8 2" />
+      <path d={tickD} stroke-width="0.6" />
+      <path d="M-47 0H-8M8 0H47M0-47V-8M0 8V47" stroke-width="0.45" />
+      <g class="radar__sweep"><path d="M0 0V-47" stroke-width="1.1" /><path d="M0 0 L-9 -46" stroke-width="0.35" /></g>
+      <path d="M-3 0H3M0-3V3" stroke-width="0.9" />
+    </svg>
+  </span>
+</span>
+
+<script>
+  import { initRadar } from '../lib/radar';
+  document.querySelectorAll<HTMLElement>('[data-radar]').forEach(initRadar);
+</script>

@@ -1,15 +1,16 @@
 ---
 import { certificates } from '../data/site';
 import Icon from './Icon.astro';
+import SplitText from './SplitText.astro';
 ---
 {certificates.length > 0 && (
-  <section class="section certs-sec" id="sertifikat" aria-labelledby="sertifikat-title">
+  <section class="section certs-sec" id="sertifikat" aria-labelledby="sertifikat-title" data-tint="ink">
     <div class="wrap">
-      <p class="eyebrow" data-reveal><b aria-hidden="true">04</b>Sertifikat</p>
-      <h2 id="sertifikat-title" data-reveal>Sertifikat.</h2>
+      <p class="eyebrow" data-reveal="left"><b aria-hidden="true">04</b>Sertifikat</p>
+      <SplitText as="h2" id="sertifikat-title" mode="char" text="Sertifikat." wave skew />
       <ul class="certs">
         {certificates.map((c, i) => (
-          <li data-reveal style={`--d:${i % 3}`}>
+          <li data-reveal="tilt" style={`--d:${i % 3}`} data-fx>
             <span class="certs__year">{c.year}</span>
             {c.url
               ? <a class="certs__t" href={c.url} target="_blank" rel="noopener noreferrer">{c.title}<Icon name="arrow" size={16} /><span class="sr-only"> (tab baru)</span></a>

@@ -1,5 +1,6 @@
-/* ---------- Latar global ---------- */
+/* ---------- Latar global (bergerak halus lewat src/lib/backdrop.ts) ---------- */
 .backdrop { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+.bd { position: absolute; inset: 0; will-change: transform; }
 /* Halftone komik (terang) / titik biru baja (gelap), memudar dari pojok kanan atas */
 .backdrop__halftone {
   position: absolute; inset: 0;
@@ -11,6 +12,17 @@
 .backdrop__web { position: absolute; color: var(--web); opacity: 0.55; }
 .backdrop__web--a { width: min(110vmin, 900px); left: -22vmin; top: -26vmin; }
 .backdrop__web--b { width: min(90vmin, 760px); right: -28vmin; bottom: -30vmin; }
+
+/* Tint per section: tiga cahaya statis yang saling memudar lewat opacity (data-tint pada section) */
+.bd--glow { inset: auto; left: 50%; top: 46%; width: 92vmax; height: 92vmax; margin: -46vmax 0 0 -46vmax; border-radius: 50%; opacity: 0; will-change: opacity, transform; }
+.bd--glow[data-glow='accent'] { left: 66%; top: 30%; background: radial-gradient(circle, color-mix(in srgb, var(--accent) 15%, transparent) 0, transparent 62%); }
+.bd--glow[data-glow='blue'] { left: 30%; top: 62%; background: radial-gradient(circle, color-mix(in srgb, var(--blue) 17%, transparent) 0, transparent 62%); }
+.bd--glow[data-glow='ink'] { left: 50%; top: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--ink) 8%, transparent) 0, transparent 62%); }
+html:not(.motion-ready) .bd--glow[data-glow='accent'] { opacity: 0.7; } /* tanpa JS: satu cahaya statis */
+
+/* Cahaya lembut yang mengikuti kursor / jari */
+.backdrop__spot { position: absolute; left: 0; top: 0; width: 44vmax; height: 44vmax; border-radius: 50%; opacity: 0; will-change: transform, opacity; background: radial-gradient(circle, color-mix(in srgb, var(--accent) 17%, transparent) 0, transparent 62%); }
+
 .backdrop__dust { position: absolute; inset: 0; width: 100%; height: 100%; opacity: var(--dust); transition: opacity 0.6s ease; }
 .backdrop__vignette { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 30%, transparent 40%, color-mix(in srgb, var(--bg) 85%, #000) 120%); opacity: var(--dust); transition: opacity 0.6s ease; }
 @media (prefers-reduced-motion: no-preference) {
@@ -19,6 +31,44 @@
 }
 @keyframes web-sway { from { transform: rotate(-2deg) scale(1); } to { transform: rotate(3deg) scale(1.03); } }
 
-/* ---------- Reveal saat scroll ---------- */
-html.motion [data-reveal] { opacity: 0; transform: translateY(28px); }
-html.motion [data-reveal].is-in { opacity: 1; transform: none; transition: opacity 0.9s var(--ease), transform 0.9s var(--ease); transition-delay: calc(var(--d, 0) * 90ms); }
+/* ============ Reveal berulang dua arah ============
+   Mulai dari state tersembunyi hanya bila <html class="motion"> (dipasang skrip, dicabut bila skrip gagal).
+   --sy: +1 saat scroll turun (masuk dari bawah), -1 saat scroll naik (masuk dari atas). Disetel oleh engine lewat html[data-dir].
+   Animasi memakai @keyframes (bukan transition) supaya tidak menimpa transition hover milik elemen. */
+html { --sy: 1; }
+html[data-dir='up'] { --sy: -1; }
+
+html.motion [data-reveal]:not([data-reveal='split']):not(.is-in) { opacity: 0; transform: var(--rv-t, translate3d(0, calc(var(--sy) * 34px), 0)); filter: var(--rv-f, none); }
+html.motion [data-reveal]:not([data-reveal='split']).is-in { animation: rv-in 0.9s var(--ease) backwards; animation-delay: calc(var(--d, 0) * 90ms); }
+@keyframes rv-in { from { opacity: 0; transform: var(--rv-t, translate3d(0, calc(var(--sy) * 34px), 0)); filter: var(--rv-f, none); } to { opacity: 1; transform: none; filter: none; } }
+
+[data-reveal='down'] { --rv-t: translate3d(0, -34px, 0); }
+[data-reveal='left'] { --rv-t: translate3d(-52px, 0, 0); }
+[data-reveal='right'] { --rv-t: translate3d(52px, 0, 0); }
+[data-reveal='zoom'] { --rv-t: scale(0.84) translate3d(0, calc(var(--sy) * 14px), 0); }
+[data-reveal='blur'] { --rv-t: translate3d(0, calc(var(--sy) * 18px), 0); --rv-f: blur(14px); }
+[data-reveal='tilt'] { --rv-t: perspective(900px) rotateX(calc(var(--sy) * 16deg)) translate3d(0, calc(var(--sy) * 30px), 0); }
+[data-reveal='fade'] { --rv-t: none; }
+
+/* ---------- Teks pecahan (SplitText): mask naik, stagger, sedikit blur ---------- */
+.st-w { position: relative; display: inline-block; vertical-align: top; white-space: nowrap; clip-path: inset(-0.6em -0.35em -0.1em -0.35em); }
+html[data-dir='up'] .st-w { clip-path: inset(-0.1em -0.35em -0.6em -0.35em); }
+.st.is-settled .st-w { clip-path: none; }
+.st-c { display: inline-block; will-change: auto; }
+html.motion .st:not(.is-in) .st-c { translate: 0 calc(var(--sy) * 128%); opacity: 0; filter: blur(5px); }
+html.motion .st.is-in .st-c {
+  transition: translate 0.85s var(--ease) calc(var(--i, 0) * 18ms), opacity 0.5s linear calc(var(--i, 0) * 18ms), filter 0.7s var(--ease) calc(var(--i, 0) * 18ms);
+}
+html.motion .st--word.is-in .st-c { transition-delay: calc(var(--i, 0) * 70ms), calc(var(--i, 0) * 70ms), calc(var(--i, 0) * 70ms); }
+html.motion .st--line.is-in .st-c { transition-delay: calc(var(--l, 0) * 110ms + var(--d, 0) * 90ms), calc(var(--l, 0) * 110ms + var(--d, 0) * 90ms), calc(var(--l, 0) * 110ms + var(--d, 0) * 90ms); }
+.st--line .st-w { clip-path: inset(-0.2em -0.2em 0 -0.2em); padding-bottom: 0.12em; margin-bottom: -0.12em; }
+html[data-dir='up'] .st--line .st-w { clip-path: inset(0 -0.2em -0.2em -0.2em); }
+.st--line.is-settled .st-w { clip-path: none; }
+/* Miring tipis mengikuti kecepatan scroll (--vel di-clamp -1..1 oleh skrip) */
+[data-skew] { transform: skewY(calc(var(--vel, 0) * -3deg)); transform-origin: left center; }
+
+@media (prefers-reduced-motion: reduce) {
+  html.motion [data-reveal], html.motion .st .st-c { opacity: 1 !important; transform: none !important; translate: none !important; filter: none !important; animation: none !important; transition: none !important; }
+  [data-skew] { transform: none; }
+  .bd { transform: none !important; }
+}

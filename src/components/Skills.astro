@@ -1,17 +1,18 @@
 ---
 import { skills, skillItems } from '../data/site';
 import WebArt from './WebArt.astro';
+import SplitText from './SplitText.astro';
 ---
-<section class="section skills" id="skill" aria-labelledby="skill-title" data-skills>
-  <WebArt class="skills__web" spokes={12} rings={6} />
+<section class="section skills" id="skill" aria-labelledby="skill-title" data-skills data-tint="blue">
+  <WebArt class="skills__web" spokes={12} rings={6} data-parallax="0.08" />
   <div class="wrap">
-    <p class="eyebrow" data-reveal><b aria-hidden="true">03</b>Skill</p>
+    <p class="eyebrow" data-reveal="left"><b aria-hidden="true">03</b>Skill</p>
     <div class="sec-head">
-      <h2 id="skill-title" data-reveal>{skills.title}</h2>
-      <p data-reveal style="--d:1">Pilih satu alat untuk melihat project yang menandainya.</p>
+      <SplitText as="h2" id="skill-title" mode="word" text={skills.title} wave skew />
+      <p data-reveal="right" style="--d:1">Pilih satu alat untuk melihat project yang menandainya.</p>
     </div>
 
-    <div class="skills__tabs" role="group" aria-label="Saring berdasarkan kelompok" data-reveal>
+    <div class="skills__tabs" role="group" aria-label="Saring berdasarkan kelompok" data-reveal="up">
       <button class="tab" type="button" data-filter="all" aria-pressed="true">Semua <small>{skillItems.length}</small></button>
       {skills.groups.map((g, i) => (
         <button class="tab" type="button" data-filter={String(i)} aria-pressed="false">{g.name} <small>{g.items.length}</small></button>
@@ -20,7 +21,7 @@ import WebArt from './WebArt.astro';
 
     <ul class="cloud">
       {skillItems.map((s, i) => (
-        <li data-reveal style={`--d:${i % 6}`}>
+        <li data-reveal="zoom" style={`--d:${i % 6}`}>
           <button class="chip" type="button" data-group={s.group} data-name={s.name} data-group-name={s.groupName} data-used={s.usedIn.join('|')} aria-pressed="false">
             <i aria-hidden="true"></i>{s.name}
           </button>
@@ -28,7 +29,7 @@ import WebArt from './WebArt.astro';
       ))}
     </ul>
 
-    <p class="skills__panel" role="status" aria-live="polite" data-panel>Belum ada alat yang dipilih.</p>
+    <p class="skills__panel" data-reveal="up" role="status" aria-live="polite" data-panel>Belum ada alat yang dipilih.</p>
   </div>
 </section>
 

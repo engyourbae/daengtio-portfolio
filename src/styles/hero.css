@@ -13,10 +13,7 @@
 @keyframes sense { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 70%, transparent); } 100% { box-shadow: 0 0 0 12px transparent; } }
 
 .hero h1 { font-size: var(--step-hero); line-height: 0.98; margin-top: var(--s-5); max-width: 16em; }
-.w { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: 0.08em; margin-bottom: -0.08em; margin-right: 0.24em; }
-.w__in { display: inline-block; }
-.w__in.is-accent { color: var(--accent); }
-:root[data-theme='terang'] .w__in.is-accent { -webkit-text-stroke: 0; }
+.hero h1 .st-w.is-accent { color: var(--accent); }
 .hero__intro { margin-top: var(--s-5); line-height: 1.5; color: var(--ink-2); max-width: 38ch; font-size: clamp(1.05rem, 1rem + 0.4vw, 1.25rem); }
 .hero__cta { display: flex; flex-wrap: wrap; gap: var(--s-3); margin-top: var(--s-6); }
 .hero__place { margin-top: var(--s-6); font-size: var(--step--1); letter-spacing: 0.06em; color: var(--ink-2); }
@@ -30,13 +27,14 @@
   transition: background 0.6s ease;
 }
 .stage__disc::after { content: ''; position: absolute; inset: 0; border-radius: 50%; background-image: radial-gradient(circle, rgba(255, 255, 255, 0.16) 1.2px, transparent 1.8px); background-size: 9px 9px; -webkit-mask-image: linear-gradient(200deg, #000, transparent 60%); mask-image: linear-gradient(200deg, #000, transparent 60%); }
-.stage__web { position: absolute; z-index: -2; left: 50%; bottom: -12%; width: 150%; translate: -50% 0; color: var(--web); }
-.stage__web path { stroke-dasharray: 1; stroke-dashoffset: 1; }
+.stage__web { position: absolute; z-index: -2; left: 50%; bottom: -12%; width: 150%; translate: -50% var(--py, 0px); color: var(--web); }
 .stage__orbit { position: absolute; z-index: -1; left: 50%; bottom: 0; width: 106%; aspect-ratio: 1; translate: -50% 6%; border-radius: 50%; border: 1.5px dashed var(--line); }
 
 /* Garis pijakan: potret "berdiri" di atas benang jaring, sehingga tepi bawah foto terasa disengaja */
 .stage::after { content: ''; position: absolute; z-index: 1; left: -30%; right: -30%; bottom: -1px; height: 3px; background: var(--ink); border-radius: 3px; pointer-events: none; }
 .stage__chips { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+.stage__chips li { pointer-events: auto; touch-action: pan-y; cursor: default; transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease), scale 0.4s var(--ease-spring), rotate 0.4s var(--ease-spring); }
+.stage__chips li:hover, .stage__chips li.is-touch, .stage__chips li:focus-visible { scale: 1.12; rotate: -4deg; }
 .stage__chips li {
   position: absolute; padding: 0.4rem 0.9rem; border-radius: var(--r-pill); font-size: var(--step--1); font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
   background: var(--ink); color: var(--bg); box-shadow: 0 10px 24px -12px var(--shadow-photo);
@@ -46,6 +44,8 @@
 .stage__chips li:nth-child(3) { left: 2%; bottom: 14%; background: var(--bg); color: var(--ink); border: 1.5px solid var(--ink); }
 @media (max-width: 520px) { .stage__chips li:nth-child(1) { left: 0; } .stage__chips li:nth-child(2) { right: 0; } }
 
+.badge { touch-action: pan-y; transition: background-color var(--dur) var(--ease), border-color var(--dur) var(--ease), scale 0.4s var(--ease-spring); }
+.badge:hover, .badge.is-touch, .badge:focus-visible { background: color-mix(in srgb, var(--accent) 12%, var(--bg)); border-color: var(--accent); scale: 1.04; }
 .hero__scroll { display: none; position: absolute; left: 50%; bottom: 1rem; translate: -50% 0; width: 26px; height: 42px; border: 1.5px solid var(--ink-2); border-radius: 14px; }
 .hero__scroll span { position: absolute; left: 50%; top: 8px; width: 3px; height: 8px; margin-left: -1.5px; border-radius: 2px; background: var(--ink); }
 @media (min-width: 900px) and (min-height: 760px) { .hero__scroll { display: block; } }
@@ -58,26 +58,22 @@
 .marquee__sep { width: 0.9em; height: 0.9em; color: var(--accent); flex: none; }
 :root[data-theme='gelap'] .marquee { background: var(--bg-2); color: var(--ink); }
 
-/* Animasi masuk: baru jalan setelah loader terbuka (html tidak lagi .loading) */
+/* Animasi hero. Masuk/keluar diatur oleh Motion (data-reveal, kelas .is-in pada .stage), jadi teks dan foto hero
+   beranimasi lagi tiap kali hero kembali ke layar. Tanpa JS (tanpa html.motion) semuanya langsung terlihat. */
+html.motion .stage:not(.is-in) .stage__web path { stroke-dasharray: 1; stroke-dashoffset: 1; }
+html.motion .stage.is-in .stage__web path { stroke-dasharray: 1; stroke-dashoffset: 0; transition: stroke-dashoffset 2.2s var(--ease) 0.4s; }
 @media (prefers-reduced-motion: no-preference) {
-  .hero [data-in] { opacity: 0; }
-  html:not(.loading) .hero [data-in] { animation: rise 0.9s var(--ease) both; animation-delay: calc(var(--i, 0) * 90ms + 120ms); }
-  .w__in { transform: translateY(110%); }
-  html:not(.loading) .w__in { animation: word-up 0.9s var(--ease) both; animation-delay: calc(var(--i, 0) * 70ms + 80ms); }
-  html:not(.loading) .stage__web path { animation: web-draw 2.2s var(--ease) 0.4s forwards; }
-  .stage__chips li { opacity: 0; }
-  html:not(.loading) .stage__chips li { animation: chip-in 0.7s var(--ease-spring) both, float 5s ease-in-out infinite; animation-delay: calc(0.9s + var(--n) * 120ms), calc(1.6s + var(--n) * 400ms); }
-  html:not(.loading) .stage__orbit { animation: orbit-in 1.4s var(--ease) both; }
-  .marquee__track { animation: marquee 32s linear infinite; }
-  .marquee:hover .marquee__track { animation-play-state: paused; }
+  html.motion .stage:not(.is-in) .stage__chips li { opacity: 0; }
+  html.motion .stage.is-in .stage__chips li { animation: chip-in 0.7s var(--ease-spring) both, float 5s ease-in-out infinite; animation-delay: calc(0.9s + var(--n) * 120ms), calc(1.6s + var(--n) * 400ms); }
+  html.motion .stage.is-in .stage__orbit { animation: orbit-in 1.4s var(--ease) both; }
+  .marquee:not(.is-js) .marquee__track { animation: marquee 32s linear infinite; }
+.marquee:not(.is-js):hover .marquee__track, .marquee:not(.is-js).is-touch .marquee__track, .marquee:not(.is-js):focus-visible .marquee__track { animation-play-state: paused; }
   .hero__scroll span { animation: scroll-dot 1.8s ease-in-out infinite; }
 }
+.marquee.is-js .marquee__track { will-change: transform; }
 @media (prefers-reduced-motion: reduce) {
-  .stage__web path { stroke-dashoffset: 0; }
   .marquee__track { animation: none; }
 }
-@keyframes rise { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
-@keyframes word-up { from { transform: translateY(110%) rotate(3deg); } to { transform: none; } }
 @keyframes chip-in { from { opacity: 0; transform: scale(0.6) translateY(12px); } to { opacity: 1; transform: none; } }
 @keyframes float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -8px; } }
 @keyframes orbit-in { from { opacity: 0; transform: scale(0.85) rotate(-20deg); } to { opacity: 1; transform: none; } }

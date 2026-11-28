@@ -2,8 +2,8 @@
 import { skills } from '../data/site';
 const items = skills.groups.flatMap((g) => g.items);
 ---
-<div class="marquee-wrap">
-<div class="marquee" aria-hidden="true">
+<div class="marquee-wrap" data-reveal="up">
+<div class="marquee" aria-hidden="true" data-cursor="Tahan">
   <div class="marquee__track">
     {[0, 1].map(() => (
       <ul class="marquee__list">

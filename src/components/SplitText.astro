@@ -1,0 +1,52 @@
+---
+/**
+ * Teks dipecah saat BUILD (tanpa JS, tanpa layout shift): per huruf, kata, atau baris.
+ *  - Judul (h1..h6): aria-label di elemen induk, potongan aria-hidden.
+ *  - Elemen lain (p, span): salinan teks asli sr-only + potongan aria-hidden, supaya pembaca layar membaca teks utuh.
+ *  - decorative: seluruh elemen aria-hidden (mis. huruf raksasa footer).
+ * Mode:
+ *  - char : tiap huruf naik lewat mask (stagger per huruf)
+ *  - word : tiap kata naik lewat mask
+ *  - line : kata dikelompokkan per baris oleh skrip kecil (src/lib/motion.ts: initLines). Tanpa JS tetap terbaca.
+ * Animasi dan replay diatur oleh Motion (data-reveal="split") dan CSS di backdrop.css. Arah naik/turun mengikuti arah scroll.
+ */
+interface Props {
+  text: string;
+  mode?: 'char' | 'word' | 'line';
+  as?: string;
+  class?: string;
+  accent?: string[];
+  decorative?: boolean;
+  wave?: boolean;
+  skew?: boolean;
+  [k: string]: unknown;
+}
+const { text, mode = 'word', as: Tag = 'span', class: cls, accent = [], decorative = false, wave = false, skew = false, ...rest } = Astro.props;
+const isHeading = /^h[1-6]$/.test(Tag as string);
+const words = text.split(/\s+/).filter(Boolean);
+const norm = (w: string) => w.toLowerCase().replace(/[^a-z0-9]/g, '');
+let ci = 0;
+const label = !decorative && isHeading ? text : undefined;
+---
+<Tag
+  class:list={['st', `st--${mode}`, cls]}
+  data-split={mode}
+  data-reveal="split"
+  data-wave={wave ? '' : undefined}
+  data-skew={skew ? '' : undefined}
+  aria-label={label}
+  aria-hidden={decorative ? 'true' : undefined}
+  {...rest}
+>
+  {!decorative && !isHeading && <span class="sr-only">{text}</span>}
+  {words.map((w, wi) => (
+    <>
+      {wi > 0 && ' '}
+      <span class:list={['st-w', accent.includes(norm(w)) && 'is-accent']} style={`--wi:${wi}`} aria-hidden="true">
+        {mode === 'char'
+          ? Array.from(w).map((ch) => <span class="st-c" style={`--i:${ci++}`}>{ch}</span>)
+          : <span class="st-c" style={`--i:${wi}`}>{w}</span>}
+      </span>
+    </>
+  ))}
+</Tag>

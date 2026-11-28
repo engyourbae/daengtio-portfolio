@@ -1,0 +1,51 @@
+---
+import { photos, idCard } from '../data/site';
+import LogoMark from './LogoMark.astro';
+import WebArt from './WebArt.astro';
+import Radar from './Radar.astro';
+
+/**
+ * Kartu ID menggantung pada dua benang jaring dari tepi atas section Tentang (titik tumpu = simpul WebArt).
+ * Isi hanya dari site.ts: foto formal, nama, role, kampus, jurusan, angkatan, kota, logo engyourbae. Tanpa nomor ID.
+ * Fisika dekoratif di src/lib/idcard.ts; teks di bawah ini tetap teks asli yang terbaca.
+ */
+const { formal, radar, lens, altFormal } = photos;
+---
+<div class="idc" data-idc data-reveal="fade">
+  <WebArt class="idc__web" spokes={12} rings={6} sag={0.2} />
+  <svg class="idc__strings" aria-hidden="true" focusable="false">
+    <path class="idc__s" d="" />
+    <path class="idc__s" d="" />
+    <circle class="idc__knot" r="3.6" />
+    <circle class="idc__knot" r="3.6" />
+  </svg>
+
+  <figure class="idc__body" aria-labelledby="idc-name" aria-describedby="idc-help" data-radar-focus data-cursor="Tarik">
+    <span class="idc__clip" aria-hidden="true"></span>
+    <div class="idc__shadow" aria-hidden="true"></div>
+    <div class="idc__card" data-reveal="blur" style="--d:2">
+      <div class="idc__band">
+        <LogoMark size={22} /><span class="sr-only">engyourbae</span>
+        <small>{idCard.label}</small>
+        <i aria-hidden="true"></i>
+      </div>
+      <div class="idc__photo" data-radar-area>
+        {formal && (
+          <Radar class="idc__radar" base={formal} red={radar.red} black={radar.black} face={lens.face} r={lens.r * 0.9} patrol={lens.patrol} alt={altFormal} />
+        )}
+      </div>
+      <p class="idc__name" id="idc-name">{idCard.name}</p>
+      <p class="idc__role">{idCard.role}</p>
+      <dl class="idc__rows">
+        {idCard.rows.map((r) => <div><dt>{r.term}</dt><dd>{r.detail}</dd></div>)}
+      </dl>
+      <span class="idc__holo" aria-hidden="true"></span>
+    </div>
+  </figure>
+  <p class="sr-only" id="idc-help">Hiasan interaktif. Tekan panah kiri atau kanan untuk mengayunkan kartu. Tab untuk lanjut.</p>
+</div>
+
+<script>
+  import { initIdCard } from '../lib/idcard';
+  document.querySelectorAll<HTMLElement>('[data-idc]').forEach(initIdCard);
+</script>

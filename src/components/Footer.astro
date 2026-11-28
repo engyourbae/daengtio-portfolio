@@ -1,12 +1,13 @@
 ---
-import { profile, nav, home } from '../data/site';
+import { profile, nav, home, socials } from '../data/site';
+import SplitText from './SplitText.astro';
 import LogoMark from './LogoMark.astro';
 import Icon from './Icon.astro';
 const year = new Date().getFullYear();
 ---
-<footer class="site-footer">
+<footer class="site-footer" data-tint="ink">
   <div class="wrap">
-    <div class="site-footer__top">
+    <div class="site-footer__top" data-reveal="up">
       <a class="brand" href={home} aria-label={`${profile.name}, beranda`}>
         <LogoMark variant="wordmark" size={72} /><span class="sr-only">engyourbae</span>
       </a>
@@ -15,10 +16,19 @@ const year = new Date().getFullYear();
           {nav.map((n) => <li><a href={n.href}>{n.label}</a></li>)}
         </ul>
       </nav>
+      <ul class="site-footer__social" aria-label="Media sosial">
+        {socials.map((c) => (
+          <li>
+            <a href={c.href} target="_blank" rel="noopener noreferrer" data-cursor={c.cursor} data-brand={c.id}>
+              <Icon name={`b-${c.id}`} size={22} /><span class="sr-only">{c.name}, {c.handle} (tab baru)</span>
+            </a>
+          </li>
+        ))}
+      </ul>
       <a class="totop" href="#main" data-magnetic><span>Ke atas</span><Icon name="arrow" size={18} class="totop__i" /></a>
     </div>
-    <p class="site-footer__giant" aria-hidden="true">{profile.shortName}</p>
-    <div class="site-footer__row">
+    <SplitText as="p" class="site-footer__giant" mode="char" text={profile.shortName} decorative wave />
+    <div class="site-footer__row" data-reveal="up">
       <span>© {year} {profile.name}</span>
       <span>{profile.location}, {profile.coords}</span>
     </div>
